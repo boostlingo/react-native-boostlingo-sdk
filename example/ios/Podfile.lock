@@ -1,6 +1,6 @@
 PODS:
   - boost-for-react-native (1.63.0)
-  - BoostlingoSDK (0.4.0):
+  - BoostlingoSDK (0.4.1):
     - TwilioVideo (~> 3.7.0)
     - TwilioVoice (~> 6.0.0)
   - CocoaAsyncSocket (7.6.4)
@@ -237,7 +237,7 @@ PODS:
     - React-jsi (= 0.62.2)
   - React-jsinspector (0.62.2)
   - react-native-boostlingo-sdk (0.1.0):
-    - BoostlingoSDK
+    - BoostlingoSDK (~> 0.4.1)
     - React
   - React-RCTActionSheet (0.62.2):
     - React-Core/RCTActionSheetHeaders (= 0.62.2)
@@ -298,7 +298,7 @@ PODS:
     - React-cxxreact (= 0.62.2)
     - React-jsi (= 0.62.2)
     - ReactCommon/callinvoker (= 0.62.2)
-  - TwilioVideo (3.7.0)
+  - TwilioVideo (3.7.1)
   - TwilioVoice (6.0.0)
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
@@ -414,7 +414,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
-  BoostlingoSDK: 9e8d3ec7b1026782a56a02a2493a6aa3512a29be
+  BoostlingoSDK: a761656e81f72bc8e6b279227f95920b05b3941d
   CocoaAsyncSocket: 694058e7c0ed05a9e217d1b3c7ded962f4180845
   CocoaLibEvent: 2fab71b8bd46dd33ddb959f7928ec5909f838e3f
   DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
@@ -439,7 +439,7 @@ SPEC CHECKSUMS:
   React-jsi: b6dc94a6a12ff98e8877287a0b7620d365201161
   React-jsiexecutor: 1540d1c01bb493ae3124ed83351b1b6a155db7da
   React-jsinspector: 512e560d0e985d0e8c479a54a4e5c147a9c83493
-  react-native-boostlingo-sdk: d7a606c327be75172d9efff1b6f9b96e5708b034
+  react-native-boostlingo-sdk: 7097c381486f12e698ea4188a80bd921961a940d
   React-RCTActionSheet: f41ea8a811aac770e0cc6e0ad6b270c644ea8b7c
   React-RCTAnimation: 49ab98b1c1ff4445148b72a3d61554138565bad0
   React-RCTBlob: a332773f0ebc413a0ce85942a55b064471587a71
@@ -450,7 +450,7 @@ SPEC CHECKSUMS:
   React-RCTText: fae545b10cfdb3d247c36c56f61a94cfd6dba41d
   React-RCTVibration: 4356114dbcba4ce66991096e51a66e61eda51256
   ReactCommon: ed4e11d27609d571e7eee8b65548efc191116eb3
-  TwilioVideo: ac463041934869f6e3794f22e57fbe8db1f62814
+  TwilioVideo: 807526f68043a11f0e17e5c26ef0f0f73d5678e4
   TwilioVoice: 83af918cdb316598f72ebf410fdb2971ec071d77
   Yoga: 3ebccbdd559724312790e7742142d062476b698e
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a

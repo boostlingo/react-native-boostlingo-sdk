@@ -23,17 +23,22 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
     }
     
     @objc
-    func getRegions(resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
+    func multiply(_ a: Float, b: Float, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
+        resolve(a*b)
+    }
+    
+    @objc
+    func getRegions(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
         resolve(Boostlingo.getRegions())
     }
     
     @objc
-    func getVersion(resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
+    func getVersion(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
         resolve(Boostlingo.getVersion())
     }
     
     @objc
-    func initialize(_ config: NSDictionary, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
+    func initialize(_ config: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
         DispatchQueue.main.async {
             do {
                 let authToken: String = config["authToken"] as! String
@@ -71,7 +76,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
     }
     
     @objc
-    func getCurrentCall(resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    func getCurrentCall(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         do {
             let currentCall = self.boostlingo!.currentCall
             resolve(callAsDictionary(call: currentCall))
@@ -84,7 +89,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
     }
     
     @objc
-    func getCallDictionaries(resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    func getCallDictionaries(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         do {
             self.boostlingo!.getCallDictionaries() { [weak self] (callDictionaries, error) in
                 guard let self = self else {
@@ -117,7 +122,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
     }
     
     @objc
-    func getProfile(resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    func getProfile(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         do {
             self.boostlingo!.getProfile { [weak self] (profile, error) in
                 guard let self = self else {
@@ -149,7 +154,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
     }
     
     @objc
-    func getVoiceLanguages(resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    func getVoiceLanguages(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         do {
             self.boostlingo!.getVoiceLanguages { [weak self] (languages, error) in
                 guard let self = self else {
@@ -181,7 +186,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
     }
     
     @objc
-    func getVideoLanguages(resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    func getVideoLanguages(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         do {
             self.boostlingo!.getVideoLanguages { [weak self] (languages, error) in
                 guard let self = self else {
@@ -213,7 +218,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
     }
     
     @objc
-    func getCallDetails(_ callId: Int, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    func getCallDetails(_ callId: Int, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         do {
             self.boostlingo!.getCallDetails(callId: callId) { [weak self] (callDetails, error) in
                 guard let self = self else {
@@ -245,7 +250,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
     }
     
     @objc
-    func makeVoiceCall(_ request: NSDictionary, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    func makeVoiceCall(_ request: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         do {
             let callRequest = CallRequest(languageFromId: request["languageFromId"] as! Int, languageToId: request["languageToId"] as! Int, serviceTypeId: request["serviceTypeId"] as! Int, genderId: request["genderId"] as? Int, isVideo: false)
 
@@ -273,7 +278,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
     }
     
     @objc
-    func hangUp(resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    func hangUp(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         do {
             boostlingo!.hangUp() { [weak self] error in
                 guard let self = self else { return }
@@ -302,7 +307,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
     }
     
     @objc
-    func sendChatMessage(_ text: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    func sendChatMessage(_ text: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         do {
             boostlingo!.sendChatMessage(text: text) { [weak self] (chatMessage, error) in
                 guard let self = self else { return }
@@ -503,13 +508,3 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
         }
     }
 }
-
-
-//@objc(BoostlingoSdk)
-//class BoostlingoSdk: NSObject {
-//
-//    @objc(multiply:withB:withResolver:withRejecter:)
-//    func multiply(a: Float, b: Float, resolve:RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
-//        resolve(a*b)
-//    }
-//}

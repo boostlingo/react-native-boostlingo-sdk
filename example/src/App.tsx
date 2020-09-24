@@ -1,18 +1,17 @@
 import * as React from 'react';
 import { StyleSheet, View, Text } from 'react-native';
-// import BoostlingoSdk from 'react-native-boostlingo-sdk';
+import BoostlingoSdk from 'react-native-boostlingo-sdk';
 
 export default function App() {
-  // const [result, setResult] = React.useState<number | undefined>();
+  const [result, setResult] = React.useState<any | undefined>();
 
   React.useEffect(() => {
-    // BoostlingoSdk.multiply(3, 7).then(setResult);
+    BoostlingoSdk.getRegions().then(setResult);
   }, []);
 
   return (
     <View style={styles.container}>
-      {/* <Text>Result: {result}</Text> */}
-      <Text>Result: BoostlingoSdk</Text>
+      <Text>Result: {result}</Text>
     </View>
   );
 }

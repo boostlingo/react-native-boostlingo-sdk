@@ -1,8 +1,8 @@
 import Boostlingo
 import Foundation
 
-@objc(RNBoostlingo)
-class RNBoostlingo: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
+@objc(BoostlingoSdk)
+class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
 
     private var boostlingo: Boostlingo?
     private var hasListeners: Bool = false

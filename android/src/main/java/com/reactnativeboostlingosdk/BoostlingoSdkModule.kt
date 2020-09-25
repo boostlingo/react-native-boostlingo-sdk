@@ -1,9 +1,7 @@
 package com.reactnativeboostlingosdk
 
-import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
-import com.facebook.react.bridge.ReactMethod
-import com.facebook.react.bridge.Promise
+import com.boostlingo.android.Boostlingo
+import com.facebook.react.bridge.*
 
 class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
@@ -15,10 +13,13 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
     // See https://facebook.github.io/react-native/docs/native-modules-android
     @ReactMethod
     fun multiply(a: Int, b: Int, promise: Promise) {
-    
       promise.resolve(a * b)
-    
     }
 
-    
+    @ReactMethod
+    fun getRegions(promise: Promise) {
+      val result = WritableNativeArray()
+      Boostlingo.getRegions().map { region -> result.pushString(region) }
+      promise.resolve(result)
+    }
 }

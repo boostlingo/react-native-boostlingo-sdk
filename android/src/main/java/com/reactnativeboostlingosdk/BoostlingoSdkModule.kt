@@ -13,13 +13,18 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
     // See https://facebook.github.io/react-native/docs/native-modules-android
     @ReactMethod
     fun multiply(a: Int, b: Int, promise: Promise) {
-      promise.resolve(a * b)
+        promise.resolve(a * b)
     }
 
     @ReactMethod
     fun getRegions(promise: Promise) {
-      val result = WritableNativeArray()
-      Boostlingo.getRegions().map { region -> result.pushString(region) }
-      promise.resolve(result)
+        val result = WritableNativeArray()
+        Boostlingo.getRegions().map { region -> result.pushString(region) }
+        promise.resolve(result)
+    }
+
+    @ReactMethod
+    fun getVersion(promise: Promise) {
+        promise.resolve(Boostlingo.getVersion())
     }
 }

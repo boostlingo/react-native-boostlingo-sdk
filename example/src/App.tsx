@@ -10,7 +10,8 @@ export default function App() {
   const [getCurrentCallResult, setGetCurrentCallResult] = React.useState<any | undefined>();
   const [getCallDictionariesResult, setGetCallDictionariesResult] = React.useState<any | undefined>();
   const [getProfileResult, setGetProfilesResult] = React.useState<any | undefined>();
-  const [getVoiceLanguagesResult, setGetVoiceLanguages] = React.useState<any | undefined>();
+  const [getVoiceLanguagesResult, setGetVoiceLanguagesResult] = React.useState<any | undefined>();
+  const [getVideoLanguagesResult, setGetVideoLanguagesResult] = React.useState<any | undefined>();
 
   React.useEffect(() => {
     BoostlingoSdk.multiply(3, 9)
@@ -52,7 +53,12 @@ export default function App() {
 
       BoostlingoSdk.getVoiceLanguages()
       .then((result: any) => {
-        setGetVoiceLanguages(result);
+        setGetVoiceLanguagesResult(result);
+      });
+
+      BoostlingoSdk.getVideoLanguages()
+      .then((result: any) => {
+        setGetVideoLanguagesResult(result);
       });
     });
 
@@ -93,6 +99,7 @@ export default function App() {
         {/* <Text>getCallDictionaries: {JSON.stringify(getCallDictionariesResult)}</Text> */}
         <Text>getProfile: {JSON.stringify(getProfileResult)}</Text>
         {/* <Text>getVoiceLanguages: {JSON.stringify(getVoiceLanguagesResult)}</Text> */}
+        {/* <Text>getVideoLanguages: {JSON.stringify(getVideoLanguagesResult)}</Text> */}
       </ScrollView>
     </SafeAreaView>
   );

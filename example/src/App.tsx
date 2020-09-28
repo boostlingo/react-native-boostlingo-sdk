@@ -1,9 +1,53 @@
 import * as React from 'react';
 import { NativeEventEmitter } from 'react-native';
-import { StyleSheet, Text, ScrollView, SafeAreaView, Button } from 'react-native';
+import { StyleSheet, Text, ScrollView, SafeAreaView, Button, PermissionsAndroid } from 'react-native';
 import BoostlingoSdk from 'react-native-boostlingo-sdk';
 
 export default function App() {
+  const requestAudioPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+        {
+          title: "RECORD_AUDIO",
+          message:"RECORD_AUDIO",
+          buttonNeutral: "Ask Me Later",
+          buttonNegative: "Cancel",
+          buttonPositive: "OK"
+        }
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log("You can use the audio");
+      } else {
+        console.log("RECORD_AUDIO permission denied");
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  const requestCameraPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        {
+          title: "CAMERA",
+          message: "CAMERA",
+          buttonNeutral: "Ask Me Later",
+          buttonNegative: "Cancel",
+          buttonPositive: "OK"
+        }
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log("You can use the camera");
+      } else {
+        console.log("CAMERA permission denied");
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
   const [initializeResult, setInitializeResult] = React.useState<any | undefined>();
   const [result, setResult] = React.useState<any | undefined>();
 
@@ -35,6 +79,7 @@ export default function App() {
     })
     .then(() => {
       setInitializeResult("OK");
+      requestAudioPermission();
     })
     .catch((error: any) => {
       setInitializeResult(error)
@@ -169,6 +214,7 @@ export default function App() {
                         setResult(JSON.stringify(error));
                       });
           }}
+          />
           <Button
           title="hangUp"
           onPress={() => {

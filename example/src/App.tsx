@@ -1,10 +1,32 @@
 import * as React from 'react';
+import { NativeEventEmitter } from 'react-native';
 import { StyleSheet, Text, ScrollView, SafeAreaView, Button } from 'react-native';
 import BoostlingoSdk from 'react-native-boostlingo-sdk';
 
 export default function App() {
   const [initializeResult, setInitializeResult] = React.useState<any | undefined>();
   const [result, setResult] = React.useState<any | undefined>();
+
+  const eventEmitter = new NativeEventEmitter(BoostlingoSdk);
+  // Don't forget to unsubscribe, typically in componentWillUnmount
+  eventEmitter.addListener('callDidConnect', (event) => {
+    setResult('callDidConnect ' + JSON.stringify(event))
+  });
+  eventEmitter.addListener('callDidDisconnect', (event) => {
+    setResult('callDidDisconnect ' + JSON.stringify(event))
+  });
+  eventEmitter.addListener('callDidFailToConnect', (event) => {
+    setResult('callDidFailToConnect ' + JSON.stringify(event))
+  });
+  eventEmitter.addListener('chatConnected', () => {
+    setResult('chatConnected')
+  });
+  eventEmitter.addListener('chatDisconnected', () => {
+    setResult('chatDisconnected')
+  });
+  eventEmitter.addListener('chatMessageRecieved', (event) => {
+    setResult('chatMessageRecieved ' + JSON.stringify(event))
+  });
 
   React.useEffect(() => {
     BoostlingoSdk.initialize({

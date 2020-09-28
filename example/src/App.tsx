@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, Text, ScrollView, SafeAreaView } from 'react-native';
 import BoostlingoSdk from 'react-native-boostlingo-sdk';
 
 export default function App() {
@@ -7,6 +7,8 @@ export default function App() {
   const [getRegionsResult, setGetRegionsResult] = React.useState<any | undefined>();
   const [getVersionResult, setGetVersionResult] = React.useState<any | undefined>();
   const [initializeResult, setInitializeResult] = React.useState<any | undefined>();
+  const [getCurrentCallResult, setGetCurrentCallResult] = React.useState<any | undefined>();
+  const [getCallDictionariesResult, setGetCallDictionariesResult] = React.useState<any | undefined>();
 
   React.useEffect(() => {
     BoostlingoSdk.multiply(3, 9)
@@ -30,6 +32,16 @@ export default function App() {
     })
     .then((result: any) => {
       setInitializeResult(result);
+    });
+
+    BoostlingoSdk.getCurrentCall()
+    .then((result: any) => {
+      setGetCurrentCallResult(result);
+    });
+
+    BoostlingoSdk.getCallDictionaries()
+    .then((result: any) => {
+      setGetCallDictionariesResult(result);
     });
 
     // BoostlingoSdk.getVersion()
@@ -59,19 +71,27 @@ export default function App() {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <Text>multiply: {multiplyResult}</Text>
-      <Text>getRegionsResult: {getRegionsResult}</Text>
-      <Text>getVersionResult: {getVersionResult}</Text>
-      <Text>initialize: {initializeResult}</Text>
-    </View>
+    <SafeAreaView style={styles.container}>
+       <ScrollView style={styles.scrollView}>
+        <Text>multiply: {multiplyResult}</Text>
+        <Text>getRegionsResult: {getRegionsResult}</Text>
+        <Text>getVersionResult: {getVersionResult}</Text>
+        <Text>initialize: {initializeResult}</Text>
+        <Text>getCurrentCall: {getCurrentCallResult}</Text>
+        {/* <Text>getCallDictionaries: {JSON.stringify(getCallDictionariesResult)}</Text> */}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    marginTop: 20,
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  scrollView: {
+    marginHorizontal: 0,
+  }
 });

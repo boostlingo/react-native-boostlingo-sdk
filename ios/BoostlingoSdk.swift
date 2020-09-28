@@ -428,12 +428,13 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
         guard let callDetails = callDetails else {
             return nil
         }
-        guard let data = try? JSONEncoder().encode(callDetails) else {
-            return nil
-        }
-        guard let dictionary = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any] else {
-            return nil
-        }
+        var dictionary = [String: Any]()
+        dictionary["callId"] = callDetails.callId
+        dictionary["accountUniqueId"] = callDetails.accountUniqueId
+        dictionary["duration"] = callDetails.duration
+        dictionary["timeRequested"] = callDetails.timeRequested.timeIntervalSince1970
+        dictionary["timeAnswered"] = callDetails.timeAnswered?.timeIntervalSince1970
+        dictionary["timeConnected"] = callDetails.timeConnected?.timeIntervalSince1970
         return dictionary
     }
     
@@ -444,7 +445,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
         var dictionary = [String: Any]()
         dictionary["user"] = chatUserAsDictionary(chatUser: chatMessage.user)
         dictionary["text"] = chatMessage.text
-        dictionary["sentTime"] = chatMessage.sentTime
+        dictionary["sentTime"] = chatMessage.sentTime.timeIntervalSince1970
         return dictionary
     }
     

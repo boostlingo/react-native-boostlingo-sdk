@@ -480,17 +480,17 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
                 map.putDouble("accountUniqueId", accountUniqueId.toDouble())
                 map.putDouble("duration", duration)
                 if (timeRequested != null) {
-                    map.putString("timeRequested", timeRequested.toString())
+                    map.putDouble("timeRequested", timeRequested.time.toDouble())
                 } else {
                     map.putNull("timeRequested")
                 }
                 if (timeAnswered != null) {
-                    map.putString("timeAnswered", timeAnswered.toString())
+                    map.putDouble("timeAnswered", timeAnswered.time.toDouble())
                 } else {
                     map.putNull("timeAnswered")
                 }
                 if (timeConnected != null) {
-                    map.putString("timeConnected", timeConnected.toString())
+                    map.putDouble("timeConnected", timeConnected.time.toDouble())
                 } else {
                     map.putNull("timeConnected")
                 }
@@ -505,7 +505,7 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
                 val map = WritableNativeMap()
                 map.putMap("user", mapChatUser(user))
                 map.putString("text", text)
-                map.putString("sentTime", sentTime.toString())
+                map.putDouble("sentTime", sentTime.time.toDouble())
                 return map
             }
         }

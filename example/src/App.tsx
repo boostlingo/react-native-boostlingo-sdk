@@ -169,6 +169,17 @@ export default function App() {
                         setResult(JSON.stringify(error));
                       });
           }}
+          <Button
+          title="hangUp"
+          onPress={() => {
+            BoostlingoSdk.hangUp()
+                      .then(() => {
+                        setResult("OK");
+                      })
+                      .catch((error: any) => {
+                        setResult(JSON.stringify(error));
+                      });
+          }}
         />
         <Text>Result: {result}</Text>
       </ScrollView>

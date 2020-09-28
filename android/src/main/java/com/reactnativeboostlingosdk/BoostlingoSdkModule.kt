@@ -1,5 +1,10 @@
 package com.reactnativeboostlingosdk
 
+import android.content.Context
+import android.media.AudioAttributes
+import android.media.AudioFocusRequest
+import android.media.AudioManager
+import android.os.Build
 import com.boostlingo.android.*
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
@@ -10,6 +15,8 @@ import io.reactivex.disposables.Disposable
 
 class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext), BLCallStateListener, BLChatListener {
 
+    private val audioManager: AudioManager by lazy { reactApplicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager }
+    private var savedAudioMode = AudioManager.MODE_INVALID
     private var compositeDisposable = CompositeDisposable()
     private var boostlingo: Boostlingo? = null
 
@@ -41,7 +48,7 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
         try {
             boostlingo = Boostlingo(reactApplicationContext, config.getString("authToken")!!, config.getString("region")!!, BLLogLevel.DEBUG)
 
-            boostlingo!!.initialize().subscribe(object: CompletableObserver {
+            boostlingo!!.initialize().subscribe(object : CompletableObserver {
                 override fun onSubscribe(d: Disposable) {
                     compositeDisposable.addAll(d)
                 }
@@ -79,7 +86,7 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
     @ReactMethod
     fun getCallDictionaries(promise: Promise) {
         try {
-            boostlingo!!.callDictionaries.subscribe(object: SingleObserver<CallDictionaries?> {
+            boostlingo!!.callDictionaries.subscribe(object : SingleObserver<CallDictionaries?> {
                 override fun onSubscribe(d: Disposable) {
                     compositeDisposable.addAll(d)
                 }
@@ -107,7 +114,7 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
     @ReactMethod
     fun getProfile(promise: Promise) {
         try {
-            boostlingo!!.profile.subscribe(object: SingleObserver<Profile?> {
+            boostlingo!!.profile.subscribe(object : SingleObserver<Profile?> {
                 override fun onSubscribe(d: Disposable) {
                     compositeDisposable.addAll(d)
                 }
@@ -135,7 +142,7 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
     @ReactMethod
     fun getVoiceLanguages(promise: Promise) {
         try {
-            boostlingo!!.voiceLanguages.subscribe(object: SingleObserver<List<Language>?> {
+            boostlingo!!.voiceLanguages.subscribe(object : SingleObserver<List<Language>?> {
                 override fun onSubscribe(d: Disposable) {
                     compositeDisposable.addAll(d)
                 }
@@ -163,7 +170,7 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
     @ReactMethod
     fun getVideoLanguages(promise: Promise) {
         try {
-            boostlingo!!.videoLanguages.subscribe(object: SingleObserver<List<Language>?> {
+            boostlingo!!.videoLanguages.subscribe(object : SingleObserver<List<Language>?> {
                 override fun onSubscribe(d: Disposable) {
                     compositeDisposable.addAll(d)
                 }
@@ -191,7 +198,7 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
     @ReactMethod
     fun getCallDetails(callId: Int, promise: Promise) {
         try {
-            boostlingo!!.getCallDetails(callId).subscribe(object: SingleObserver<CallDetails?> {
+            boostlingo!!.getCallDetails(callId).subscribe(object : SingleObserver<CallDetails?> {
                 override fun onSubscribe(d: Disposable) {
                     compositeDisposable.addAll(d)
                 }
@@ -223,8 +230,8 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
                     request.getInt("languageFromId"),
                     request.getInt("languageToId"),
                     request.getInt("serviceTypeId"),
-                    if (request.hasKey("genderId") && !request.isNull("genderId")) request.getInt("genderId") else null )
-            boostlingo!!.makeVoiceCall(calRequest, this, this).subscribe(object: SingleObserver<BLVoiceCall?> {
+                    if (request.hasKey("genderId") && !request.isNull("genderId")) request.getInt("genderId") else null)
+            boostlingo!!.makeVoiceCall(calRequest, this, this).subscribe(object : SingleObserver<BLVoiceCall?> {
                 override fun onSubscribe(d: Disposable) {
                     compositeDisposable.addAll(d)
                 }
@@ -252,7 +259,7 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
     @ReactMethod
     fun hangUp(promise: Promise) {
         try {
-            boostlingo!!.hangUp().subscribe(object: CompletableObserver {
+            boostlingo!!.hangUp().subscribe(object : CompletableObserver {
                 override fun onSubscribe(d: Disposable) {
                     compositeDisposable.addAll(d)
                 }
@@ -275,6 +282,11 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
         } catch (e: Exception) {
             promise.reject("error", Exception("Error running Boostlingo SDK", e))
         }
+    }
+
+    @ReactMethod
+    fun toggleAudioRoute(toSpeaker: Boolean) {
+        audioManager.setSpeakerphoneOn(toSpeaker)
     }
 
     @ReactMethod
@@ -477,20 +489,56 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
         }
     }
 
+    private fun setAudioFocus(setFocus: Boolean) {
+        if (audioManager != null) {
+            if (setFocus) {
+                savedAudioMode = audioManager.mode
+                // Request audio focus before making any device switch.
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    val playbackAttributes = AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                            .build()
+                    val focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
+                            .setAudioAttributes(playbackAttributes)
+                            .setAcceptsDelayedFocusGain(true)
+                            .setOnAudioFocusChangeListener { }
+                            .build()
+                    audioManager.requestAudioFocus(focusRequest)
+                } else {
+                    val focusRequestResult = audioManager.requestAudioFocus({ focusChange: Int -> }, AudioManager.STREAM_VOICE_CALL,
+                            AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
+                }
+                /*
+                 * Start by setting MODE_IN_COMMUNICATION as default audio mode. It is
+                 * required to be in this mode when playout and/or recording starts for
+                 * best possible VoIP performance. Some devices have difficulties with speaker mode
+                 * if this is not set.
+                 */audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
+            } else {
+                audioManager.mode = savedAudioMode
+                audioManager.abandonAudioFocus(null)
+            }
+        }
+    }
+
     // MARK: - BLCallDelegate
     override fun callConnected(p0: BLCall) {
+        setAudioFocus(true)
         reactApplicationContext
                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
                 .emit("callConnected", mapCall(p0))
     }
 
     override fun callFailedToConnect(p0: Throwable?) {
+        setAudioFocus(false)
         reactApplicationContext
                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
                 .emit("callDidFailToConnect", p0?.localizedMessage)
     }
 
     override fun callDisconnected(p0: Throwable?) {
+        setAudioFocus(false)
         reactApplicationContext
                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
                 .emit("callDidDisconnect", p0?.localizedMessage)

@@ -216,6 +216,18 @@ export default function App() {
           }}
           />
           <Button
+          title="toggleAudioRoute(true)"
+          onPress={() => {
+            BoostlingoSdk.toggleAudioRoute(true);
+          }}
+          />
+          <Button
+          title="toggleAudioRoute(false)"
+          onPress={() => {
+            BoostlingoSdk.toggleAudioRoute(false);
+          }}
+        />
+        <Button
           title="hangUp"
           onPress={() => {
             BoostlingoSdk.hangUp()

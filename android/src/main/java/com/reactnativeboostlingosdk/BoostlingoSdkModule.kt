@@ -104,6 +104,34 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
     }
 
     @ReactMethod
+    fun getProfile(promise: Promise) {
+        try {
+            boostlingo!!.profile.subscribe(object: SingleObserver<Profile?> {
+                override fun onSubscribe(d: Disposable) {
+                    compositeDisposable.addAll(d)
+                }
+
+                override fun onSuccess(t: Profile) {
+                    promise.resolve(mapProfile(t))
+                }
+
+                override fun onError(e: Throwable) {
+                    val apiCallException = e as BLApiCallException?
+                    var message = ""
+                    if (apiCallException != null) {
+                        message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
+                    } else {
+                        message = e.localizedMessage
+                    }
+                    promise.reject("error", Exception(message, e))
+                }
+            })
+        } catch (e: Exception) {
+            promise.reject("error", Exception("Error running Boostlingo SDK", e))
+        }
+    }
+
+    @ReactMethod
     fun dispose() {
         compositeDisposable.dispose()
         compositeDisposable = CompositeDisposable()
@@ -217,6 +245,26 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
                 val map = WritableNativeMap()
                 map.putInt("id", id)
                 map.putString("name", name)
+                return map
+            }
+        }
+    }
+    
+    private fun mapProfile(profile: Profile?): ReadableMap? {
+        return profile?.let {
+            with(it) {
+                val map = WritableNativeMap()
+                map.putString("accountName", accountName)
+                map.putInt("userAccountId", userAccountId)
+                if (companyAccountId != null) {
+                    map.putInt("companyAccountId", companyAccountId)
+                } else  {
+                    map.putNull("companyAccountId")
+                }
+                map.putString("email", email)
+                map.putString("firstName", firstName)
+                map.putString("lastName", lastName)
+                map.putMap("imageInfo", mapImageInfo(imageInfo))
                 return map
             }
         }

@@ -228,6 +228,18 @@ export default function App() {
           }}
         />
         <Button
+          title="muteCall(true)"
+          onPress={() => {
+            BoostlingoSdk.muteCall(true);
+          }}
+          />
+          <Button
+          title="muteCall(false)"
+          onPress={() => {
+            BoostlingoSdk.muteCall(false);
+          }}
+        />
+        <Button
           title="hangUp"
           onPress={() => {
             BoostlingoSdk.hangUp()

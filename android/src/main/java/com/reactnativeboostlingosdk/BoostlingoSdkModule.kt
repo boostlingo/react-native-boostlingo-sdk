@@ -290,6 +290,11 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
     }
 
     @ReactMethod
+    fun muteCall(isMuted: Boolean) {
+        boostlingo?.currentCall?.isMuted = isMuted
+    }
+
+    @ReactMethod
     fun dispose() {
         compositeDisposable.dispose()
         compositeDisposable = CompositeDisposable()

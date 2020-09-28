@@ -2,12 +2,13 @@ package com.reactnativeboostlingosdk
 
 import com.boostlingo.android.*
 import com.facebook.react.bridge.*
+import com.facebook.react.modules.core.DeviceEventManagerModule
 import io.reactivex.CompletableObserver
 import io.reactivex.SingleObserver
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 
-class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext), BLCallStateListener, BLChatListener {
 
     private var compositeDisposable = CompositeDisposable()
     private var boostlingo: Boostlingo? = null
@@ -216,9 +217,45 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
     }
 
     @ReactMethod
+    fun makeVoiceCall(request: ReadableMap, promise: Promise) {
+        try {
+            val calRequest = CallRequest(
+                    request.getInt("languageFromId"),
+                    request.getInt("languageToId"),
+                    request.getInt("serviceTypeId"),
+                    if (request.hasKey("genderId") && !request.isNull("genderId")) request.getInt("genderId") else null )
+            boostlingo!!.makeVoiceCall(calRequest, this, this).subscribe(object: SingleObserver<BLVoiceCall?> {
+                override fun onSubscribe(d: Disposable) {
+                    compositeDisposable.addAll(d)
+                }
+
+                override fun onSuccess(t: BLVoiceCall) {
+                    promise.resolve(mapCall(t))
+                }
+
+                override fun onError(e: Throwable) {
+                    val apiCallException = e as? BLApiCallException?
+                    var message = ""
+                    if (apiCallException != null) {
+                        message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
+                    } else {
+                        message = e.localizedMessage
+                    }
+                    promise.reject("error", Exception(message, e))
+                }
+            })
+        } catch (e: Exception) {
+            promise.reject("error", Exception("Error running Boostlingo SDK", e))
+        }
+    }
+
+    @ReactMethod
     fun dispose() {
         compositeDisposable.dispose()
         compositeDisposable = CompositeDisposable()
+        boostlingo?.setCallStateListener(null)
+        boostlingo?.setBlChatListener(null)
+        boostlingo?.setVideoListener(null)
         boostlingo = null
     }
 
@@ -387,5 +424,66 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
                 return map
             }
         }
+    }
+
+    private fun mapChatMessage(chatMessage: ChatMessage?): ReadableMap? {
+        return chatMessage?.let {
+            with(it) {
+                val map = WritableNativeMap()
+                map.putMap("user", mapChatUser(user))
+                map.putString("text", text)
+                map.putString("sentTime", sentTime.toString())
+                return map
+            }
+        }
+    }
+
+    private fun mapChatUser(chatUser: ChatUser?): ReadableMap? {
+        return chatUser?.let {
+            with(it) {
+                val map = WritableNativeMap()
+                map.putInt("id", id)
+                map.putMap("imageInfo", mapImageInfo(imageInfo))
+                return map
+            }
+        }
+    }
+
+    // MARK: - BLCallDelegate
+    override fun callConnected(p0: BLCall) {
+        reactApplicationContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                .emit("callConnected", mapCall(p0))
+    }
+
+    override fun callFailedToConnect(p0: Throwable?) {
+        reactApplicationContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                .emit("callDidFailToConnect", p0?.localizedMessage)
+    }
+
+    override fun callDisconnected(p0: Throwable?) {
+        reactApplicationContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                .emit("callDidDisconnect", p0?.localizedMessage)
+    }
+
+    // MARK: - BLChatDelegate
+    override fun chatConnected() {
+        reactApplicationContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                .emit("chatConnected", null)
+    }
+
+    override fun chatDisconnected() {
+        reactApplicationContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                .emit("chatDisconnected", null)
+    }
+
+    override fun chatMessageReceived(p0: ChatMessage?) {
+        reactApplicationContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                .emit("chatMessageRecieved", mapChatMessage(p0))
     }
 }

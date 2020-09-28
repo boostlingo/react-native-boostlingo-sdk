@@ -132,6 +132,34 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
     }
 
     @ReactMethod
+    fun getVoiceLanguages(promise: Promise) {
+        try {
+            boostlingo!!.voiceLanguages.subscribe(object: SingleObserver<List<Language>?> {
+                override fun onSubscribe(d: Disposable) {
+                    compositeDisposable.addAll(d)
+                }
+
+                override fun onSuccess(t: List<Language>) {
+                    promise.resolve(mapLanguages(t))
+                }
+
+                override fun onError(e: Throwable) {
+                    val apiCallException = e as BLApiCallException?
+                    var message = ""
+                    if (apiCallException != null) {
+                        message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
+                    } else {
+                        message = e.localizedMessage
+                    }
+                    promise.reject("error", Exception(message, e))
+                }
+            })
+        } catch (e: Exception) {
+            promise.reject("error", Exception("Error running Boostlingo SDK", e))
+        }
+    }
+
+    @ReactMethod
     fun dispose() {
         compositeDisposable.dispose()
         compositeDisposable = CompositeDisposable()
@@ -227,6 +255,14 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
         }
     }
 
+    private fun mapLanguages(languages: List<Language>?): ReadableArray? {
+        return languages?.let {
+            val array = WritableNativeArray()
+            it.map { language -> array.pushMap(mapLanguage(language)) }
+            return array
+        }
+    }
+
     private fun mapServiceType(serviceType: ServiceType?): ReadableMap? {
         return serviceType?.let {
             with(it) {
@@ -249,7 +285,7 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
             }
         }
     }
-    
+
     private fun mapProfile(profile: Profile?): ReadableMap? {
         return profile?.let {
             with(it) {

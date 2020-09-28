@@ -10,6 +10,7 @@ export default function App() {
   const [getCurrentCallResult, setGetCurrentCallResult] = React.useState<any | undefined>();
   const [getCallDictionariesResult, setGetCallDictionariesResult] = React.useState<any | undefined>();
   const [getProfileResult, setGetProfilesResult] = React.useState<any | undefined>();
+  const [getVoiceLanguagesResult, setGetVoiceLanguages] = React.useState<any | undefined>();
 
   React.useEffect(() => {
     BoostlingoSdk.multiply(3, 9)
@@ -47,6 +48,11 @@ export default function App() {
       BoostlingoSdk.getProfile()
       .then((result: any) => {
         setGetProfilesResult(result);
+      });
+
+      BoostlingoSdk.getVoiceLanguages()
+      .then((result: any) => {
+        setGetVoiceLanguages(result);
       });
     });
 
@@ -86,6 +92,7 @@ export default function App() {
         <Text>getCurrentCall: {getCurrentCallResult}</Text>
         {/* <Text>getCallDictionaries: {JSON.stringify(getCallDictionariesResult)}</Text> */}
         <Text>getProfile: {JSON.stringify(getProfileResult)}</Text>
+        {/* <Text>getVoiceLanguages: {JSON.stringify(getVoiceLanguagesResult)}</Text> */}
       </ScrollView>
     </SafeAreaView>
   );

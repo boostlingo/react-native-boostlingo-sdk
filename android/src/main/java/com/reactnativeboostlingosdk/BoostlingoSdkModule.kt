@@ -50,7 +50,7 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
                 }
 
                 override fun onError(e: Throwable) {
-                    val apiCallException = e as BLApiCallException?
+                    val apiCallException = e as? BLApiCallException?
                     var message = ""
                     if (apiCallException != null) {
                         message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
@@ -88,7 +88,7 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
                 }
 
                 override fun onError(e: Throwable) {
-                    val apiCallException = e as BLApiCallException?
+                    val apiCallException = e as? BLApiCallException?
                     var message = ""
                     if (apiCallException != null) {
                         message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
@@ -116,7 +116,7 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
                 }
 
                 override fun onError(e: Throwable) {
-                    val apiCallException = e as BLApiCallException?
+                    val apiCallException = e as? BLApiCallException?
                     var message = ""
                     if (apiCallException != null) {
                         message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
@@ -144,7 +144,7 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
                 }
 
                 override fun onError(e: Throwable) {
-                    val apiCallException = e as BLApiCallException?
+                    val apiCallException = e as? BLApiCallException?
                     var message = ""
                     if (apiCallException != null) {
                         message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
@@ -172,7 +172,35 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
                 }
 
                 override fun onError(e: Throwable) {
-                    val apiCallException = e as BLApiCallException?
+                    val apiCallException = e as? BLApiCallException?
+                    var message = ""
+                    if (apiCallException != null) {
+                        message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
+                    } else {
+                        message = e.localizedMessage
+                    }
+                    promise.reject("error", Exception(message, e))
+                }
+            })
+        } catch (e: Exception) {
+            promise.reject("error", Exception("Error running Boostlingo SDK", e))
+        }
+    }
+
+    @ReactMethod
+    fun getCallDetails(callId: Int, promise: Promise) {
+        try {
+            boostlingo!!.getCallDetails(callId).subscribe(object: SingleObserver<CallDetails?> {
+                override fun onSubscribe(d: Disposable) {
+                    compositeDisposable.addAll(d)
+                }
+
+                override fun onSuccess(t: CallDetails) {
+                    promise.resolve(mapCallDetails(t))
+                }
+
+                override fun onError(e: Throwable) {
+                    val apiCallException = e as? BLApiCallException?
                     var message = ""
                     if (apiCallException != null) {
                         message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
@@ -329,6 +357,33 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
                 map.putString("firstName", firstName)
                 map.putString("lastName", lastName)
                 map.putMap("imageInfo", mapImageInfo(imageInfo))
+                return map
+            }
+        }
+    }
+
+    private fun mapCallDetails(callDetails: CallDetails?): ReadableMap? {
+        return callDetails?.let {
+            with(it) {
+                val map = WritableNativeMap()
+                map.putInt("callId", callId)
+                map.putDouble("accountUniqueId", accountUniqueId.toDouble())
+                map.putDouble("duration", duration)
+                if (timeRequested != null) {
+                    map.putString("timeRequested", timeRequested.toString())
+                } else {
+                    map.putNull("timeRequested")
+                }
+                if (timeAnswered != null) {
+                    map.putString("timeAnswered", timeAnswered.toString())
+                } else {
+                    map.putNull("timeAnswered")
+                }
+                if (timeConnected != null) {
+                    map.putString("timeConnected", timeConnected.toString())
+                } else {
+                    map.putNull("timeConnected")
+                }
                 return map
             }
         }

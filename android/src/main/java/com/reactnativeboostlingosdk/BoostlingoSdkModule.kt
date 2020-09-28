@@ -232,24 +232,24 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
                     request.getInt("serviceTypeId"),
                     if (request.hasKey("genderId") && !request.isNull("genderId")) request.getInt("genderId") else null)
             boostlingo!!.makeVoiceCall(calRequest, this, this).subscribe(object : SingleObserver<BLVoiceCall?> {
-                override fun onSubscribe(d: Disposable) {
-                    compositeDisposable.addAll(d)
-                }
-
-                override fun onSuccess(t: BLVoiceCall) {
-                    promise.resolve(mapCall(t))
-                }
-
-                override fun onError(e: Throwable) {
-                    val apiCallException = e as? BLApiCallException?
-                    var message = ""
-                    if (apiCallException != null) {
-                        message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
-                    } else {
-                        message = e.localizedMessage
+                    override fun onSubscribe(d: Disposable) {
+                        compositeDisposable.addAll(d)
                     }
-                    promise.reject("error", Exception(message, e))
-                }
+
+                    override fun onSuccess(t: BLVoiceCall) {
+                        promise.resolve(mapCall(t))
+                    }
+
+                    override fun onError(e: Throwable) {
+                        val apiCallException = e as? BLApiCallException?
+                        var message = ""
+                        if (apiCallException != null) {
+                            message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
+                        } else {
+                            message = e.localizedMessage
+                        }
+                        promise.reject("error", Exception(message, e))
+                    }
             })
         } catch (e: Exception) {
             promise.reject("error", Exception("Error running Boostlingo SDK", e))
@@ -287,6 +287,34 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
     @ReactMethod
     fun toggleAudioRoute(toSpeaker: Boolean) {
         audioManager.setSpeakerphoneOn(toSpeaker)
+    }
+
+    @ReactMethod
+    fun sendChatMessage(text: String, promise: Promise) {
+        try {
+            boostlingo!!.sendChatMessage(text).subscribe(object : SingleObserver<ChatMessage?> {
+                override fun onSubscribe(d: Disposable) {
+                    compositeDisposable.addAll(d)
+                }
+
+                override fun onSuccess(t: ChatMessage) {
+                    promise.resolve(mapChatMessage(t))
+                }
+
+                override fun onError(e: Throwable) {
+                    val apiCallException = e as? BLApiCallException?
+                    var message = ""
+                    if (apiCallException != null) {
+                        message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
+                    } else {
+                        message = e.localizedMessage
+                    }
+                    promise.reject("error", Exception(message, e))
+                }
+            })
+        } catch (e: Exception) {
+            promise.reject("error", Exception("Error running Boostlingo SDK", e))
+        }
     }
 
     @ReactMethod

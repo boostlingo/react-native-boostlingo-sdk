@@ -216,6 +216,18 @@ export default function App() {
           }}
           />
           <Button
+          title="hangUp"
+          onPress={() => {
+            BoostlingoSdk.hangUp()
+                      .then(() => {
+                        setResult("OK");
+                      })
+                      .catch((error: any) => {
+                        setResult(JSON.stringify(error));
+                      });
+          }}
+        />
+          <Button
           title="toggleAudioRoute(true)"
           onPress={() => {
             BoostlingoSdk.toggleAudioRoute(true);
@@ -240,15 +252,15 @@ export default function App() {
           }}
         />
         <Button
-          title="hangUp"
+          title="sendChatMessage('test')"
           onPress={() => {
-            BoostlingoSdk.hangUp()
-                      .then(() => {
-                        setResult("OK");
-                      })
-                      .catch((error: any) => {
-                        setResult(JSON.stringify(error));
-                      });
+            BoostlingoSdk.sendChatMessage('test')
+            .then((message: any) => {
+              setResult(JSON.stringify(message));
+            })
+            .catch((error: any) => {
+              setResult(JSON.stringify(error));
+            });
           }}
         />
         <Text>Result: {result}</Text>

@@ -1,12 +1,8 @@
 package com.reactnativeboostlingosdk
 
-import android.R
-import android.widget.ArrayAdapter
 import com.boostlingo.android.*
 import com.facebook.react.bridge.*
-import com.facebook.react.bridge.UiThreadUtil.runOnUiThread
 import io.reactivex.CompletableObserver
-import io.reactivex.CompletableSource
 import io.reactivex.SingleObserver
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
@@ -70,9 +66,159 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
     }
 
     @ReactMethod
+    fun getCurrentCall(promise: Promise) {
+        try {
+            val currentCall = boostlingo!!.getCurrentCall()
+            promise.resolve(mapCall(currentCall))
+        } catch (e: Exception) {
+            promise.reject("error", Exception("Error running Boostlingo SDK", e))
+        }
+    }
+
+    @ReactMethod
+    fun getCallDictionaries(promise: Promise) {
+        try {
+            boostlingo!!.callDictionaries.subscribe(object: SingleObserver<CallDictionaries?> {
+                override fun onSubscribe(d: Disposable) {
+                    compositeDisposable.addAll(d)
+                }
+
+                override fun onSuccess(t: CallDictionaries) {
+                    promise.resolve(mapCallDictionaries(t))
+                }
+
+                override fun onError(e: Throwable) {
+                    val apiCallException = e as BLApiCallException?
+                    var message = ""
+                    if (apiCallException != null) {
+                        message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
+                    } else {
+                        message = e.localizedMessage
+                    }
+                    promise.reject("error", Exception(message, e))
+                }
+            })
+        } catch (e: Exception) {
+            promise.reject("error", Exception("Error running Boostlingo SDK", e))
+        }
+    }
+
+    @ReactMethod
     fun dispose() {
         compositeDisposable.dispose()
         compositeDisposable = CompositeDisposable()
         boostlingo = null
+    }
+
+    private fun mapCall(call: BLCall?): ReadableMap? {
+        return call?.let {
+            with(it) {
+                val map = WritableNativeMap()
+                map.putInt("callId", callId)
+                map.putBoolean("isVideo", isVideo)
+                map.putBoolean("isInProgress", isInProgress)
+                map.putMap("interlocutorInfo", mapInterlocutorInfo(interlocutorInfo))
+                map.putBoolean("isMuted", isMuted)
+                return map
+            }
+        }
+    }
+
+    private fun mapInterlocutorInfo(interlocutorInfo: InterpreterInfo?): ReadableMap? {
+        return interlocutorInfo?.let {
+            with(it) {
+                val map = WritableNativeMap()
+                map.putInt("userAccountId", userAccountId)
+                map.putString("firstName", firstName)
+                map.putString("lastName", lastName)
+                map.putString("requiredName", requiredName)
+                map.putString("companyName", companyName)
+                map.putDouble("rating", rating)
+                map.putMap("imageInfo", mapImageInfo(imageInfo))
+                return map
+            }
+        }
+    }
+
+    private fun mapImageInfo(imageInfo: ImageInfo?): ReadableMap? {
+        return imageInfo?.let {
+            with(it) {
+                val map = WritableNativeMap()
+                map.putString("imageKey", imageKey)
+                val sizesArray = WritableNativeArray()
+                sizes?.map { size -> sizesArray.pushInt(size) }
+                map.putArray("sizes", sizesArray)
+                return map
+            }
+        }
+    }
+
+    private fun mapCallDictionaries(callDictionaries: CallDictionaries?): ReadableMap? {
+        return callDictionaries?.let {
+            with(it) {
+                val map = WritableNativeMap()
+                val languagesArray = WritableNativeArray()
+                languages?.map { language -> languagesArray.pushMap(mapLanguage(language)) }
+                map.putArray("languages", languagesArray)
+                val serviceTypesArray = WritableNativeArray()
+                serviceTypes?.map { serviceType -> serviceTypesArray.pushMap(mapServiceType(serviceType)) }
+                map.putArray("serviceTypes", serviceTypesArray)
+                val gendersArray = WritableNativeArray()
+                genders?.map { gender -> gendersArray.pushMap(mapGender(gender)) }
+                map.putArray("genders", gendersArray)
+                return map
+            }
+        }
+    }
+
+    private fun mapLanguage(language: Language?): ReadableMap? {
+        return language?.let {
+            with(it) {
+                val map = WritableNativeMap()
+                map.putInt("id", id)
+                map.putString("code", code)
+                map.putString("name", name)
+                map.putString("englishName", englishName)
+                map.putString("nativeName", nativeName)
+                map.putString("localizedName", localizedName)
+                map.putBoolean("enabled", enabled)
+                map.putBoolean("isSignLanguage", isSignLanguage)
+                map.putBoolean("isVideoBackstopStaffed", isVideoBackstopStaffed)
+                if (vriPolicyOrder != null) {
+                    map.putInt("vriPolicyOrder", vriPolicyOrder)
+                } else  {
+                    map.putNull("vriPolicyOrder")
+                }
+                if (opiPolicyOrder != null) {
+                    map.putInt("opiPolicyOrder", opiPolicyOrder)
+                } else {
+                    map.putNull("opiPolicyOrder")
+                }
+                return map
+            }
+        }
+    }
+
+    private fun mapServiceType(serviceType: ServiceType?): ReadableMap? {
+        return serviceType?.let {
+            with(it) {
+                val map = WritableNativeMap()
+                map.putInt("id", id)
+                map.putString("name", name)
+                map.putBoolean("enable", enable)
+                return map
+            }
+        }
+    }
+
+    private fun mapGender(gender: Gender?): ReadableMap? {
+        return gender?.let {
+            with(it) {
+                val map = WritableNativeMap()
+                map.putInt("id", id)
+                map.putString("name", name)
+                return map
+            }
+        }
     }
 }

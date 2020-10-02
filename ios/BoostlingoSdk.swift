@@ -51,6 +51,11 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
     }
     
     @objc
+    override static func requiresMainQueueSetup() -> Bool {
+        return true
+    }
+    
+    @objc
     func multiply(_ a: Float, b: Float, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
         resolve(a*b)
     }

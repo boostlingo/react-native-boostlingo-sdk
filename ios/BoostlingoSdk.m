@@ -28,6 +28,8 @@
 
     RCT_EXTERN_METHOD(makeVoiceCall:(NSDictionary *)request resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 
+    RCT_EXTERN_METHOD(makeVideoCall:(NSDictionary *)request resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+
     RCT_EXTERN_METHOD(hangUp:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 
     RCT_EXTERN_METHOD(toggleAudioRoute:(BOOL)toSpeaker)

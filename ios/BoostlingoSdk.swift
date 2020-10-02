@@ -2,14 +2,34 @@ import Boostlingo
 import Foundation
 
 @objc(BoostlingoSdk)
-class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
+class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDelegate {
 
     private var boostlingo: Boostlingo?
     private var hasListeners: Bool = false
+    private var remoteVideoView: VideoView?
+    private var localVideoView: VideoView?
     
     @objc
     override func supportedEvents() -> [String] {
-        return ["callDidConnect", "callDidDisconnect", "callDidFailToConnect", "chatConnected", "chatDisconnected", "chatMessageRecieved"]
+        return [
+            "callDidConnect",
+            "callDidDisconnect",
+            "callDidFailToConnect",
+            "chatConnected",
+            "chatDisconnected",
+            "chatMessageRecieved",
+            "remoteAudioEnabled",
+            "remoteAudioDisabled",
+            "remoteVideoEnabled",
+            "remoteVideoDisabled",
+            "remoteAudioPublished",
+            "remoteAudioUnpublished",
+            "remoteVideoPublished",
+            "remoteVideoUnpublished"]
+    }
+    
+    static func requiresMainQueueSetup() -> Bool {
+        return true
     }
     
     @objc
@@ -20,6 +40,14 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
     @objc
     override func stopObserving() {
         hasListeners = false
+    }
+    
+    func setLocalVideoView(_ localVideoView: VideoView?) {
+        self.localVideoView = localVideoView
+    }
+    
+    func setRemoteVideoView(_ remoteVideoView: VideoView?) {
+        self.remoteVideoView = remoteVideoView
     }
     
     @objc
@@ -278,6 +306,34 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
     }
     
     @objc
+    func makeVideoCall(_ request: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+        do {
+            let callRequest = CallRequest(languageFromId: request["languageFromId"] as! Int, languageToId: request["languageToId"] as! Int, serviceTypeId: request["serviceTypeId"] as! Int, genderId: request["genderId"] as? Int, isVideo: true)
+
+            self.boostlingo!.chatDelegate = self
+            self.boostlingo!.makeVideoCall(callRequest: callRequest, remoteVideoView: remoteVideoView!, localVideoView: localVideoView, delegate: self, videoDelegate: self) { [weak self] call, error in
+                guard let self = self else {
+                    return
+                }
+                
+                DispatchQueue.main.async {
+                    if let error = error {
+                        let message = error.localizedDescription
+                        reject("error", "Encountered an error: \(message)", error)
+                        return
+                    }
+                    resolve(self.callAsDictionary(call: call))
+                }
+            }
+        } catch let error as NSError {
+            reject("error", error.domain, error)
+        } catch let error {
+            reject("error", "Error running Boostlingo SDK", error)
+            return
+        }
+    }
+    
+    @objc
     func hangUp(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         do {
             boostlingo!.hangUp() { [weak self] error in
@@ -340,6 +396,8 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
     
     @objc
     func dispose() {
+        localVideoView = nil
+        remoteVideoView = nil
         boostlingo?.chatDelegate = nil
         boostlingo = nil
     }
@@ -505,6 +563,71 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
         if (hasListeners) {
             DispatchQueue.main.async {
                 self.sendEvent(withName: "chatMessageRecieved", body: self.chatMessageAsDictionary(chatMessage: message))
+            }
+        }
+    }
+    
+    // MARK: - BLVideoDelegate
+    func remoteAudioEnabled() {
+        if (hasListeners) {
+            DispatchQueue.main.async {
+                self.sendEvent(withName: "remoteAudioEnabled", body: nil)
+            }
+        }
+    }
+    
+    func remoteAudioDisabled() {
+        if (hasListeners) {
+            DispatchQueue.main.async {
+                self.sendEvent(withName: "remoteAudioDisabled", body: nil)
+            }
+        }
+    }
+    
+    func remoteVideoEnabled() {
+        if (hasListeners) {
+            DispatchQueue.main.async {
+                self.sendEvent(withName: "remoteVideoEnabled", body: nil)
+            }
+        }
+    }
+    
+    func remoteVideoDisabled() {
+        if (hasListeners) {
+            DispatchQueue.main.async {
+                self.sendEvent(withName: "remoteVideoDisabled", body: nil)
+            }
+        }
+    }
+    
+    func remoteAudioPublished() {
+        if (hasListeners) {
+            DispatchQueue.main.async {
+                self.sendEvent(withName: "remoteAudioPublished", body: nil)
+            }
+        }
+    }
+    
+    func remoteAudioUnpublished() {
+        if (hasListeners) {
+            DispatchQueue.main.async {
+                self.sendEvent(withName: "remoteAudioUnpublished", body: nil)
+            }
+        }
+    }
+    
+    func remoteVideoPublished() {
+        if (hasListeners) {
+            DispatchQueue.main.async {
+                self.sendEvent(withName: "remoteVideoPublished", body: nil)
+            }
+        }
+    }
+    
+    func remoteVideoUnpublished() {
+        if (hasListeners) {
+            DispatchQueue.main.async {
+                self.sendEvent(withName: "remoteVideoUnpublished", body: nil)
             }
         }
     }

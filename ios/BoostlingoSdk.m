@@ -34,6 +34,8 @@
 
     RCT_EXTERN_METHOD(sendChatMessage:(NSString *)text resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 
+    RCT_EXTERN_METHOD(muteCall:(BOOL)isMuted)
+
     RCT_EXTERN_METHOD(dispose)
 
 @end

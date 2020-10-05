@@ -1,9 +1,14 @@
 import * as React from 'react';
-import { NativeEventEmitter } from 'react-native';
-import { StyleSheet, Text, ScrollView, SafeAreaView, Button, PermissionsAndroid } from 'react-native';
+import { UIManager, findNodeHandle, requireNativeComponent, NativeEventEmitter, StyleSheet, Text, ScrollView, SafeAreaView, Button, PermissionsAndroid } from 'react-native';
 import BoostlingoSdk from 'react-native-boostlingo-sdk';
 
+const VideoView = requireNativeComponent('BLVideoView');
+
 export default function App() {
+
+  var localVideoView: typeof VideoView;
+  var remoteVideoView: typeof VideoView;
+
   const requestAudioPermission = async () => {
     try {
       const granted = await PermissionsAndroid.request(
@@ -80,15 +85,26 @@ export default function App() {
     .then(() => {
       setInitializeResult("OK");
       requestAudioPermission();
+      requestCameraPermission();
     })
     .catch((error: any) => {
-      setInitializeResult(error)
+      setInitializeResult(JSON.stringify(error))
     });
   }, []);
 
   return (
     <SafeAreaView style={styles.container}>
        <ScrollView style={styles.scrollView}>
+       <VideoView 
+        style={styles.video}
+        ref={(e: any) => {
+          localVideoView = e;
+        }}/>
+        <VideoView 
+        style={styles.video}
+        ref={(e: any) => {
+          remoteVideoView = e;
+        }}/>
         <Text>initialize: {initializeResult}</Text>
         <Button
           title="multiply"
@@ -216,6 +232,31 @@ export default function App() {
           }}
           />
           <Button
+          title="makeVideoCall"
+          onPress={() => {
+            UIManager.dispatchViewManagerCommand(
+              findNodeHandle(localVideoView),
+              UIManager.getViewManagerConfig('BLVideoView').Commands.attachAsLocal,
+              []);
+            UIManager.dispatchViewManagerCommand(
+              findNodeHandle(remoteVideoView),
+              UIManager.getViewManagerConfig('BLVideoView').Commands.attachAsRemote,
+              []);
+            BoostlingoSdk.makeVideoCall({
+                        "languageFromId": 4,
+                        "languageToId": 1,
+                        "serviceTypeId": 2,
+                        "genderId": null
+                      })
+                      .then((call: any) => {
+                        setResult(JSON.stringify(call));
+                      })
+                      .catch((error: any) => {
+                        setResult(JSON.stringify(error));
+                      });
+          }}
+          />
+          <Button
           title="hangUp"
           onPress={() => {
             BoostlingoSdk.hangUp()
@@ -278,5 +319,13 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     marginHorizontal: 0,
+  },
+  video: {
+    height: 200,
+    width: 200,
+    backgroundColor: 'gray',
+    flex: 1, 
+    alignItems: "center",
+    justifyContent: "center"
   }
 });

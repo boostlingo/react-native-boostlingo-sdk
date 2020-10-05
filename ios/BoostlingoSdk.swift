@@ -1,5 +1,41 @@
 import Boostlingo
-import Foundation
+import UIKit
+import TwilioVideo
+
+@objc(BLVideoView)
+class BLVideoView: RCTViewManager {
+
+    @objc
+    override static func requiresMainQueueSetup() -> Bool {
+        return true
+    }
+
+    override func view() -> UIView! {
+        let container = UIView()
+        let inner = VideoView()
+        inner.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        container.addSubview(inner)
+        return container;
+    }
+    
+    @objc
+    func attachAsLocal(_ node: NSNumber) {
+        DispatchQueue.main.async {
+            let component = self.bridge.uiManager.view(forReactTag: node)! as! UIView
+            let boostlingoSdkModule = self.bridge.module(forName: "BoostlingoSdk") as! BoostlingoSdk
+            boostlingoSdkModule.setLocalVideoView(component.subviews[0] as! VideoView)
+        }
+    }
+    
+    @objc
+    func attachAsRemote(_ node: NSNumber) {
+        DispatchQueue.main.async {
+            let component = self.bridge.uiManager.view(forReactTag: node)! as! UIView
+            let boostlingoSdkModule = self.bridge.module(forName: "BoostlingoSdk") as! BoostlingoSdk
+            boostlingoSdkModule.setRemoteVideoView(component.subviews[0] as! VideoView)
+        }
+    }
+}
 
 @objc(BoostlingoSdk)
 class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDelegate {
@@ -26,10 +62,6 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
             "remoteAudioUnpublished",
             "remoteVideoPublished",
             "remoteVideoUnpublished"]
-    }
-    
-    static func requiresMainQueueSetup() -> Bool {
-        return true
     }
     
     @objc

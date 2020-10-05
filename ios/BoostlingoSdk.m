@@ -1,6 +1,13 @@
-#import <React/RCTBridgeModule.h>
-#import <React/RCTEventEmitter.h>
-#import <Foundation/Foundation.h>
+#import "React/RCTViewManager.h"
+#import "React/RCTEventEmitter.h"
+
+@interface RCT_EXTERN_MODULE(BLVideoView, RCTViewManager)
+
+    RCT_EXTERN_METHOD(attachAsLocal:(nonnull NSNumber *)node)
+
+    RCT_EXTERN_METHOD(attachAsRemote:(nonnull NSNumber *)node)
+
+@end
 
 @interface RCT_EXTERN_MODULE(BoostlingoSdk, RCTEventEmitter)
 

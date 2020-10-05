@@ -292,6 +292,24 @@ export default function App() {
             BoostlingoSdk.muteCall(false);
           }}
         />
+         <Button
+          title="enableVideo(true)"
+          onPress={() => {
+            BoostlingoSdk.enableVideo(true);
+          }}
+          />
+          <Button
+          title="enableVideo(false)"
+          onPress={() => {
+            BoostlingoSdk.enableVideo(false);
+          }}
+        />
+         <Button
+          title="flipCamera()"
+          onPress={() => {
+            BoostlingoSdk.flipCamera();
+          }}
+        />
         <Button
           title="sendChatMessage('test')"
           onPress={() => {

@@ -432,6 +432,22 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
     }
     
     @objc
+    func enableVideo(_ isVideoEnabled: Bool) {
+        guard let currentCall = boostlingo!.currentCall as? BLVideoCall else {
+            return
+        }
+        currentCall.isVideoEnabled = isVideoEnabled
+    }
+    
+    @objc
+    func flipCamera() {
+        guard let currentCall = boostlingo!.currentCall as? BLVideoCall else {
+            return
+        }
+        currentCall.flipCamera()
+    }
+    
+    @objc
     func dispose() {
         localVideoView = nil
         remoteVideoView = nil

@@ -45,6 +45,10 @@
 
     RCT_EXTERN_METHOD(muteCall:(BOOL)isMuted)
 
+    RCT_EXTERN_METHOD(enableVideo:(BOOL)isVideoEnabled)
+
+    RCT_EXTERN_METHOD(flipCamera)
+
     RCT_EXTERN_METHOD(dispose)
 
 @end

@@ -237,15 +237,15 @@ export default function App() {
           onPress={() => {
             (new Promise(resolve => 
               {
-                // UIManager.dispatchViewManagerCommand(
-                //   findNodeHandle(localVideoView),
-                //   UIManager.getViewManagerConfig('BLVideoView').Commands.attachAsLocal,
-                //   [])
-                //   // TODO: detach video views after use
-                //   // UIManager.dispatchViewManagerCommand(
-                //   //   findNodeHandle(localVideoView),
-                //   //   UIManager.getViewManagerConfig('BLVideoView').Commands.detach,
-                //   //   []);
+                UIManager.dispatchViewManagerCommand(
+                  findNodeHandle(localVideoView),
+                  UIManager.getViewManagerConfig('BLVideoView').Commands.attachAsLocal,
+                  [])
+                  // TODO: detach video views after use
+                  // UIManager.dispatchViewManagerCommand(
+                  //   findNodeHandle(localVideoView),
+                  //   UIManager.getViewManagerConfig('BLVideoView').Commands.detach,
+                  //   []);
             
               UIManager.dispatchViewManagerCommand(
                 findNodeHandle(remoteVideoView),

@@ -8,20 +8,41 @@ import android.os.Build
 import com.boostlingo.android.*
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
+import com.twilio.video.VideoView
 import io.reactivex.CompletableObserver
 import io.reactivex.SingleObserver
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 
-class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext), BLCallStateListener, BLChatListener {
+class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext), BLCallStateListener, BLVideoListener, BLChatListener {
 
     private val audioManager: AudioManager by lazy { reactApplicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager }
     private var savedAudioMode = AudioManager.MODE_INVALID
+    private var savedMicrophoneMute = false
     private var compositeDisposable = CompositeDisposable()
     private var boostlingo: Boostlingo? = null
+    private var localVideoView: VideoView? = null
+    private var remoteVideoView: VideoView? = null
 
     override fun getName(): String {
         return "BoostlingoSdk"
+    }
+
+    fun setLocalVideo(videoView: VideoView?) {
+        localVideoView = videoView
+    }
+
+    fun setRemoteVideo(videoView: VideoView?) {
+        remoteVideoView = videoView
+    }
+
+    fun detachVideoView(videoView: VideoView?) {
+        if (localVideoView == videoView) {
+            localVideoView = null
+        }
+        if (remoteVideoView == videoView) {
+            remoteVideoView = null
+        }
     }
 
     // Example method
@@ -232,24 +253,58 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
                     request.getInt("serviceTypeId"),
                     if (request.hasKey("genderId") && !request.isNull("genderId")) request.getInt("genderId") else null)
             boostlingo!!.makeVoiceCall(calRequest, this, this).subscribe(object : SingleObserver<BLVoiceCall?> {
-                    override fun onSubscribe(d: Disposable) {
-                        compositeDisposable.addAll(d)
-                    }
+                override fun onSubscribe(d: Disposable) {
+                    compositeDisposable.addAll(d)
+                }
 
-                    override fun onSuccess(t: BLVoiceCall) {
-                        promise.resolve(mapCall(t))
-                    }
+                override fun onSuccess(t: BLVoiceCall) {
+                    promise.resolve(mapCall(t))
+                }
 
-                    override fun onError(e: Throwable) {
-                        val apiCallException = e as? BLApiCallException?
-                        var message = ""
-                        if (apiCallException != null) {
-                            message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
-                        } else {
-                            message = e.localizedMessage
-                        }
-                        promise.reject("error", Exception(message, e))
+                override fun onError(e: Throwable) {
+                    val apiCallException = e as? BLApiCallException?
+                    var message = ""
+                    if (apiCallException != null) {
+                        message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
+                    } else {
+                        message = e.localizedMessage
                     }
+                    promise.reject("error", Exception(message, e))
+                }
+            })
+        } catch (e: Exception) {
+            promise.reject("error", Exception("Error running Boostlingo SDK", e))
+        }
+    }
+
+    @ReactMethod
+    fun makeVideoCall(request: ReadableMap, promise: Promise) {
+        try {
+            val calRequest = CallRequest(
+                    request.getInt("languageFromId"),
+                    request.getInt("languageToId"),
+                    request.getInt("serviceTypeId"),
+                    if (request.hasKey("genderId") && !request.isNull("genderId")) request.getInt("genderId") else null,
+                    true)
+            boostlingo!!.makeVideoCall(calRequest, this, this, this, remoteVideoView!!, localVideoView).subscribe(object : SingleObserver<BLVideoCall?> {
+                override fun onSubscribe(d: Disposable) {
+                    compositeDisposable.addAll(d)
+                }
+
+                override fun onSuccess(t: BLVideoCall) {
+                    promise.resolve(mapCall(t))
+                }
+
+                override fun onError(e: Throwable) {
+                    val apiCallException = e as? BLApiCallException?
+                    var message = ""
+                    if (apiCallException != null) {
+                        message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
+                    } else {
+                        message = e.localizedMessage
+                    }
+                    promise.reject("error", Exception(message, e))
+                }
             })
         } catch (e: Exception) {
             promise.reject("error", Exception("Error running Boostlingo SDK", e))
@@ -323,12 +378,27 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
     }
 
     @ReactMethod
+    fun enableVideo(isVideoEnabled: Boolean) {
+        val videoCall = boostlingo?.currentCall as? BLVideoCall
+        videoCall?.isVideoEnabled = isVideoEnabled
+    }
+
+    @ReactMethod
+    fun flipCamera() {
+        val videoCall = boostlingo?.currentCall as? BLVideoCall
+        videoCall?.switchCameraSource()
+    }
+
+    @ReactMethod
     fun dispose() {
         compositeDisposable.dispose()
         compositeDisposable = CompositeDisposable()
+        localVideoView = null
+        remoteVideoView = null
         boostlingo?.setCallStateListener(null)
         boostlingo?.setBlChatListener(null)
         boostlingo?.setVideoListener(null)
+        boostlingo?.dispose()
         boostlingo = null
     }
 
@@ -522,56 +592,63 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
         }
     }
 
-    private fun setAudioFocus(setFocus: Boolean) {
-        if (audioManager != null) {
-            if (setFocus) {
-                savedAudioMode = audioManager.mode
-                // Request audio focus before making any device switch.
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    val playbackAttributes = AudioAttributes.Builder()
-                            .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
-                            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                            .build()
-                    val focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
-                            .setAudioAttributes(playbackAttributes)
-                            .setAcceptsDelayedFocusGain(true)
-                            .setOnAudioFocusChangeListener { }
-                            .build()
-                    audioManager.requestAudioFocus(focusRequest)
-                } else {
-                    val focusRequestResult = audioManager.requestAudioFocus({ focusChange: Int -> }, AudioManager.STREAM_VOICE_CALL,
-                            AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
-                }
-                /*
-                 * Start by setting MODE_IN_COMMUNICATION as default audio mode. It is
-                 * required to be in this mode when playout and/or recording starts for
-                 * best possible VoIP performance. Some devices have difficulties with speaker mode
-                 * if this is not set.
-                 */audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
-            } else {
-                audioManager.mode = savedAudioMode
-                audioManager.abandonAudioFocus(null)
-            }
+    private fun configureAudio(enable: Boolean) {
+        if (enable) {
+            savedAudioMode = audioManager.mode
+            // Request audio focus before making any device switch
+            requestAudioFocus()
+            /*
+             * Use MODE_IN_COMMUNICATION as the default audio mode. It is required
+             * to be in this mode when playout and/or recording starts for the best
+             * possible VoIP performance. Some devices have difficulties with
+             * speaker mode if this is not set.
+             */audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
+            /*
+             * Always disable microphone mute during a WebRTC call.
+             */savedMicrophoneMute = audioManager.isMicrophoneMute
+            audioManager.isMicrophoneMute = false
+        } else {
+            audioManager.mode = savedAudioMode
+            audioManager.abandonAudioFocus(null)
+            audioManager.isMicrophoneMute = savedMicrophoneMute
+        }
+    }
+
+    private fun requestAudioFocus() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val playbackAttributes = AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .build()
+            val focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
+                    .setAudioAttributes(playbackAttributes)
+                    .setAcceptsDelayedFocusGain(true)
+                    .setOnAudioFocusChangeListener { i: Int -> }
+                    .build()
+            audioManager.requestAudioFocus(focusRequest)
+        } else {
+            audioManager.requestAudioFocus(null, AudioManager.STREAM_VOICE_CALL,
+                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
         }
     }
 
     // MARK: - BLCallDelegate
     override fun callConnected(p0: BLCall) {
-        setAudioFocus(true)
+        configureAudio(true)
         reactApplicationContext
                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
                 .emit("callConnected", mapCall(p0))
     }
 
     override fun callFailedToConnect(p0: Throwable?) {
-        setAudioFocus(false)
+        configureAudio(false)
         reactApplicationContext
                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
                 .emit("callDidFailToConnect", p0?.localizedMessage)
     }
 
     override fun callDisconnected(p0: Throwable?) {
-        setAudioFocus(false)
+        configureAudio(false)
         reactApplicationContext
                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
                 .emit("callDidDisconnect", p0?.localizedMessage)
@@ -594,5 +671,54 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
         reactApplicationContext
                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
                 .emit("chatMessageRecieved", mapChatMessage(p0))
+    }
+
+    // MARK: - BLVideoDelegate
+    override fun onAudioTrackPublished() {
+        reactApplicationContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                .emit("remoteAudioPublished", null)
+    }
+
+    override fun onAudioTrackUnpublished() {
+        reactApplicationContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                .emit("remoteAudioUnpublished", null)
+    }
+
+    override fun onVideoTrackPublished() {
+        reactApplicationContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                .emit("remoteVideoPublished", null)
+    }
+
+    override fun onVideoTrackUnpublished() {
+        reactApplicationContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                .emit("remoteVideoUnpublished", null)
+    }
+
+    override fun onAudioTrackEnabled() {
+        reactApplicationContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                .emit("remoteAudioEnabled", null)
+    }
+
+    override fun onAudioTrackDisabled() {
+        reactApplicationContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                .emit("remoteAudioDisabled", null)
+    }
+
+    override fun onVideoTrackEnabled() {
+        reactApplicationContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                .emit("remoteVideoEnabled", null)
+    }
+
+    override fun onVideoTrackDisabled() {
+        reactApplicationContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                .emit("remoteVideoDisabled", null)
     }
 }

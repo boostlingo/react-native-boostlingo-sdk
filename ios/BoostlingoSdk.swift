@@ -35,6 +35,15 @@ class BLVideoView: RCTViewManager {
             boostlingoSdkModule.setRemoteVideoView(component.subviews[0] as! VideoView)
         }
     }
+    
+    @objc
+    func detach(_ node: NSNumber) {
+        DispatchQueue.main.async {
+            let component = self.bridge.uiManager.view(forReactTag: node)! as! UIView
+            let boostlingoSdkModule = self.bridge.module(forName: "BoostlingoSdk") as! BoostlingoSdk
+            boostlingoSdkModule.detachVideoView(component.subviews[0] as! VideoView)
+        }
+    }
 }
 
 @objc(BoostlingoSdk)
@@ -80,6 +89,15 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
     
     func setRemoteVideoView(_ remoteVideoView: VideoView?) {
         self.remoteVideoView = remoteVideoView
+    }
+    
+    func detachVideoView(_ videoView: VideoView?) {
+        if localVideoView == videoView {
+            localVideoView = nil
+        }
+        if remoteVideoView == videoView {
+            remoteVideoView = nil
+        }
     }
     
     @objc

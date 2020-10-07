@@ -8,3 +8,26 @@
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
 # Add any project specific keep options here:
+
+# Twilio Programmable Voice
+-keep class com.twilio.** { *; }
+-keep class tvo.webrtc.** { *; }
+-dontwarn tvo.webrtc.**
+-keep class com.twilio.voice.** { *; }
+-keepattributes InnerClasses
+
+# Twilio Programmable Video
+-keep class tvi.webrtc.** { *; }
+-keep class com.twilio.video.** { *; }
+-keep class com.twilio.common.** { *; }
+-keepattributes InnerClasses
+
+# Retrofit
+-dontwarn okio.**
+-dontwarn retrofit.**
+-keep class retrofit.** { *; }
+-keepclassmembers,allowobfuscation interface * {
+    @retrofit.http.** <methods>;
+}
+
+-dontwarn com.squareup.okhttp.**

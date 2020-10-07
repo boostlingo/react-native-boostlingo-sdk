@@ -242,6 +242,15 @@ export default function App() {
               findNodeHandle(remoteVideoView),
               UIManager.getViewManagerConfig('BLVideoView').Commands.attachAsRemote,
               []);
+              // TODO: detach video views after use
+              // UIManager.dispatchViewManagerCommand(
+              //   findNodeHandle(localVideoView),
+              //   UIManager.getViewManagerConfig('BLVideoView').Commands.detach,
+              //   []);
+              //   UIManager.dispatchViewManagerCommand(
+              //     findNodeHandle(remoteVideoView),
+              //     UIManager.getViewManagerConfig('BLVideoView').Commands.detach,
+              //     []);
             BoostlingoSdk.makeVideoCall({
                         "languageFromId": 4,
                         "languageToId": 1,

@@ -7,6 +7,8 @@
 
     RCT_EXTERN_METHOD(attachAsRemote:(nonnull NSNumber *)node)
 
+    RCT_EXTERN_METHOD(detach:(nonnull NSNumber *)node)
+
 @end
 
 @interface RCT_EXTERN_MODULE(BoostlingoSdk, RCTEventEmitter)

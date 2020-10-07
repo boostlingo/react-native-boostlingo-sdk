@@ -7,6 +7,7 @@ import com.facebook.react.uimanager.ViewManager
 import java.util.*
 
 class BoostlingoSdkPackage : ReactPackage {
+
     override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> {
         return Arrays.asList<NativeModule>(BoostlingoSdkModule(reactContext))
     }

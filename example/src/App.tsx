@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { UIManager, findNodeHandle, requireNativeComponent, NativeEventEmitter, StyleSheet, Text, ScrollView, SafeAreaView, Button, PermissionsAndroid } from 'react-native';
+import { UIManager, findNodeHandle, requireNativeComponent, NativeEventEmitter, StyleSheet, Text, ScrollView, SafeAreaView, Button, PermissionsAndroid, View } from 'react-native';
 import BoostlingoSdk from 'react-native-boostlingo-sdk';
 
 const VideoView = requireNativeComponent('BLVideoView');
@@ -100,6 +100,7 @@ export default function App() {
         ref={(e: any) => {
           localVideoView = e;
         }}/>
+        <View style={styles.separator} />
         <VideoView 
         style={styles.video}
         ref={(e: any) => {
@@ -234,35 +235,44 @@ export default function App() {
           <Button
           title="makeVideoCall"
           onPress={() => {
-            UIManager.dispatchViewManagerCommand(
-              findNodeHandle(localVideoView),
-              UIManager.getViewManagerConfig('BLVideoView').Commands.attachAsLocal,
-              []);
-            UIManager.dispatchViewManagerCommand(
-              findNodeHandle(remoteVideoView),
-              UIManager.getViewManagerConfig('BLVideoView').Commands.attachAsRemote,
-              []);
-              // TODO: detach video views after use
-              // UIManager.dispatchViewManagerCommand(
-              //   findNodeHandle(localVideoView),
-              //   UIManager.getViewManagerConfig('BLVideoView').Commands.detach,
-              //   []);
-              //   UIManager.dispatchViewManagerCommand(
-              //     findNodeHandle(remoteVideoView),
-              //     UIManager.getViewManagerConfig('BLVideoView').Commands.detach,
-              //     []);
-            BoostlingoSdk.makeVideoCall({
-                        "languageFromId": 4,
-                        "languageToId": 1,
-                        "serviceTypeId": 2,
-                        "genderId": null
-                      })
-                      .then((call: any) => {
-                        setResult(JSON.stringify(call));
-                      })
-                      .catch((error: any) => {
-                        setResult(JSON.stringify(error));
-                      });
+            (new Promise(resolve => 
+              {
+                // UIManager.dispatchViewManagerCommand(
+                //   findNodeHandle(localVideoView),
+                //   UIManager.getViewManagerConfig('BLVideoView').Commands.attachAsLocal,
+                //   [])
+                //   // TODO: detach video views after use
+                //   // UIManager.dispatchViewManagerCommand(
+                //   //   findNodeHandle(localVideoView),
+                //   //   UIManager.getViewManagerConfig('BLVideoView').Commands.detach,
+                //   //   []);
+            
+              UIManager.dispatchViewManagerCommand(
+                findNodeHandle(remoteVideoView),
+                UIManager.getViewManagerConfig('BLVideoView').Commands.attachAsRemote,
+                []);
+            //     // TODO: detach video views after use
+            //     //   UIManager.dispatchViewManagerCommand(
+            //     //     findNodeHandle(remoteVideoView),
+            //     //     UIManager.getViewManagerConfig('BLVideoView').Commands.detach,
+            //     //     []);
+                setTimeout(resolve, 1000);
+                // NOTE: you can use 'localVideoViewAttached' and 'remoteVideoViewAttached' events instead of waiting
+              }))
+            .then(() => {
+              BoostlingoSdk.makeVideoCall({
+                "languageFromId": 4,
+                "languageToId": 1,
+                "serviceTypeId": 2,
+                "genderId": null
+              })
+              .then((call: any) => {
+                setResult(JSON.stringify(call));
+              })
+              .catch((error: any) => {
+                setResult(JSON.stringify(error));
+              });
+            });
           }}
           />
           <Button
@@ -347,10 +357,16 @@ const styles = StyleSheet.create({
   scrollView: {
     marginHorizontal: 0,
   },
+  separator: {
+    width: 300,
+    height: 10,
+    flex: 1, 
+    alignItems: "center",
+    justifyContent: "center"
+  },
   video: {
-    height: 200,
+    height: 300,
     width: 200,
-    backgroundColor: 'gray',
     flex: 1, 
     alignItems: "center",
     justifyContent: "center"

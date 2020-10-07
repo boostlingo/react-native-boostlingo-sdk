@@ -1,9 +1,12 @@
 package com.reactnativeboostlingosdk
 
+import android.graphics.Color
+import android.util.Log
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
+import java.lang.Exception
 
 /**
  * @author Denis Kornev
@@ -28,8 +31,17 @@ class BLVideoViewManager(
         )
     }
 
+    override fun receiveCommand(root: RNVideoViewGroup, commandId: Int, args: ReadableArray?) {
+        val boostlingoSdkModule  = reactContext.catalystInstance.getNativeModule("BoostlingoSdk") as BoostlingoSdkModule
+        when(commandId) {
+            1 -> boostlingoSdkModule.setLocalVideo(root.getSurfaceViewRenderer())
+            2 -> boostlingoSdkModule.setRemoteVideo(root.getSurfaceViewRenderer())
+            3 -> boostlingoSdkModule.detachVideoView(root.getSurfaceViewRenderer())
+        }
+    }
+
     override fun receiveCommand(root: RNVideoViewGroup, commandId: String?, args: ReadableArray?) {
-        val boostlingoSdkModule = reactContext.getNativeModule(BoostlingoSdkModule::class.java) as BoostlingoSdkModule
+        val boostlingoSdkModule  = reactContext.catalystInstance.getNativeModule("BoostlingoSdk") as BoostlingoSdkModule
         when(commandId) {
             "1" -> boostlingoSdkModule.setLocalVideo(root.getSurfaceViewRenderer())
             "2" -> boostlingoSdkModule.setRemoteVideo(root.getSurfaceViewRenderer())

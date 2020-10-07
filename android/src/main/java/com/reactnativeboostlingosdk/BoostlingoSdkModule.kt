@@ -28,14 +28,23 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
         return "BoostlingoSdk"
     }
 
+    @ReactMethod
     fun setLocalVideo(videoView: VideoView?) {
         localVideoView = videoView
+        reactApplicationContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                .emit("localVideoViewAttached", null)
     }
 
+    @ReactMethod
     fun setRemoteVideo(videoView: VideoView?) {
         remoteVideoView = videoView
+        reactApplicationContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                .emit("remoteVideoViewAttached", null)
     }
 
+    @ReactMethod
     fun detachVideoView(videoView: VideoView?) {
         if (localVideoView == videoView) {
             localVideoView = null
@@ -252,6 +261,7 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
                     request.getInt("languageToId"),
                     request.getInt("serviceTypeId"),
                     if (request.hasKey("genderId") && !request.isNull("genderId")) request.getInt("genderId") else null)
+
             boostlingo!!.makeVoiceCall(calRequest, this, this).subscribe(object : SingleObserver<BLVoiceCall?> {
                 override fun onSubscribe(d: Disposable) {
                     compositeDisposable.addAll(d)
@@ -286,6 +296,7 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
                     request.getInt("serviceTypeId"),
                     if (request.hasKey("genderId") && !request.isNull("genderId")) request.getInt("genderId") else null,
                     true)
+
             boostlingo!!.makeVideoCall(calRequest, this, this, this, remoteVideoView!!, localVideoView).subscribe(object : SingleObserver<BLVideoCall?> {
                 override fun onSubscribe(d: Disposable) {
                     compositeDisposable.addAll(d)

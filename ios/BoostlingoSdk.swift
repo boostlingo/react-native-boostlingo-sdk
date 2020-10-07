@@ -85,10 +85,20 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
     
     func setLocalVideoView(_ localVideoView: VideoView?) {
         self.localVideoView = localVideoView
+        if (hasListeners) {
+            DispatchQueue.main.async {
+                self.sendEvent(withName: "localVideoViewAttached", body: nil)
+            }
+        }
     }
     
     func setRemoteVideoView(_ remoteVideoView: VideoView?) {
         self.remoteVideoView = remoteVideoView
+        if (hasListeners) {
+            DispatchQueue.main.async {
+                self.sendEvent(withName: "remoteVideoViewAttached", body: nil)
+            }
+        }
     }
     
     func detachVideoView(_ videoView: VideoView?) {

@@ -95,16 +95,17 @@ export default function App() {
   return (
     <SafeAreaView style={styles.container}>
        <ScrollView style={styles.scrollView}>
-       <VideoView 
-        style={styles.video}
-        ref={(e: any) => {
-          localVideoView = e;
-        }}/>
         <View style={styles.separator} />
         <VideoView 
         style={styles.video}
         ref={(e: any) => {
           remoteVideoView = e;
+        }}/>
+        <View style={styles.separator} />
+        <VideoView 
+        style={styles.video}
+        ref={(e: any) => {
+          localVideoView = e;
         }}/>
         <Text>initialize: {initializeResult}</Text>
         <Button

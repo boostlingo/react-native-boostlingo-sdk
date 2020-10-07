@@ -34,18 +34,16 @@ class BLVideoViewManager(
     override fun receiveCommand(root: RNVideoViewGroup, commandId: Int, args: ReadableArray?) {
         val boostlingoSdkModule  = reactContext.catalystInstance.getNativeModule("BoostlingoSdk") as BoostlingoSdkModule
         when(commandId) {
-            1 -> boostlingoSdkModule.setLocalVideo(root.getSurfaceViewRenderer())
-            2 -> boostlingoSdkModule.setRemoteVideo(root.getSurfaceViewRenderer())
-            3 -> boostlingoSdkModule.detachVideoView(root.getSurfaceViewRenderer())
-        }
-    }
-
-    override fun receiveCommand(root: RNVideoViewGroup, commandId: String?, args: ReadableArray?) {
-        val boostlingoSdkModule  = reactContext.catalystInstance.getNativeModule("BoostlingoSdk") as BoostlingoSdkModule
-        when(commandId) {
-            "1" -> boostlingoSdkModule.setLocalVideo(root.getSurfaceViewRenderer())
-            "2" -> boostlingoSdkModule.setRemoteVideo(root.getSurfaceViewRenderer())
-            "3" -> boostlingoSdkModule.detachVideoView(root.getSurfaceViewRenderer())
+            1 -> {
+                root.getSurfaceViewRenderer()?.applyZOrder(true);
+                boostlingoSdkModule.setLocalVideo(root.getSurfaceViewRenderer())
+            }
+            2 -> {
+                boostlingoSdkModule.setRemoteVideo(root.getSurfaceViewRenderer())
+            }
+            3 -> {
+                boostlingoSdkModule.detachVideoView(root.getSurfaceViewRenderer())
+            }
         }
     }
 }

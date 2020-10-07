@@ -28,7 +28,6 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
         return "BoostlingoSdk"
     }
 
-    @ReactMethod
     fun setLocalVideo(videoView: VideoView?) {
         localVideoView = videoView
         reactApplicationContext
@@ -36,7 +35,6 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
                 .emit("localVideoViewAttached", null)
     }
 
-    @ReactMethod
     fun setRemoteVideo(videoView: VideoView?) {
         remoteVideoView = videoView
         reactApplicationContext

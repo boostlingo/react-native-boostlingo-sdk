@@ -70,7 +70,9 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
             "remoteAudioPublished",
             "remoteAudioUnpublished",
             "remoteVideoPublished",
-            "remoteVideoUnpublished"]
+            "remoteVideoUnpublished",
+            "localVideoViewAttached",
+            "remoteVideoViewAttached"]
     }
     
     @objc

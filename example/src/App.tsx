@@ -96,7 +96,7 @@ export default function App() {
     <SafeAreaView style={styles.container}>
        <ScrollView style={styles.scrollView}>
         <View style={styles.separator} />
-        <VideoView 
+        <VideoView
         style={styles.video}
         ref={(e: any) => {
           remoteVideoView = e;

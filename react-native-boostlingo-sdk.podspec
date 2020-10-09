@@ -18,5 +18,5 @@ Pod::Spec.new do |s|
   
 
   s.dependency "React"
-  s.dependency "BoostlingoSDK", '~> 0.4.1'
+  s.dependency "BoostlingoSDK", '~> 0.4.2'
 end

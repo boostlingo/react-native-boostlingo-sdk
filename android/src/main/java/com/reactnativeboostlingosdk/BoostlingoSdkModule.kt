@@ -646,7 +646,7 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
         configureAudio(true)
         reactApplicationContext
                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                .emit("callConnected", mapCall(p0))
+                .emit("callDidConnect", mapCall(p0))
     }
 
     override fun callFailedToConnect(p0: Throwable?) {

@@ -413,6 +413,7 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
 
     private fun mapCall(call: BLCall?): ReadableMap? {
         return call?.let {
+            val videoCall = it as? BLVideoCall
             with(it) {
                 val map = WritableNativeMap()
                 map.putInt("callId", callId)
@@ -420,6 +421,13 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
                 map.putBoolean("isInProgress", isInProgress)
                 map.putMap("interlocutorInfo", mapInterlocutorInfo(interlocutorInfo))
                 map.putBoolean("isMuted", isMuted)
+                map.putString("accessToken", accessToken)
+                map.putString("identity", identity)
+                if (videoCall != null) {
+                    map.putString("roomId", videoCall.roomId)
+                } else {
+                    map.putString("roomId", null)
+                }
                 return map
             }
         }

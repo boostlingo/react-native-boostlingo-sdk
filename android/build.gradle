@@ -8,7 +8,7 @@ buildscript {
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:3.2.1'
+    classpath 'com.android.tools.build:gradle:4.0.2'
     // noinspection DifferentKotlinGradleVersion
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
   }
@@ -132,16 +132,16 @@ dependencies {
   implementation fileTree(dir: 'libs', include: ['*.aar'])
 
   // Retrofit2
-  implementation 'com.squareup.retrofit2:retrofit:2.5.0'
-  implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
+  implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+  implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 
   // Okhttp3
-  implementation 'com.squareup.okhttp3:okhttp:3.14.1'
-  implementation 'com.squareup.okhttp3:logging-interceptor:3.14.1'
+  implementation 'com.squareup.okhttp3:okhttp:4.9.0'
+  implementation 'com.squareup.okhttp3:logging-interceptor:4.9.0'
   implementation 'com.android.support:support-annotations:28.0.0'
 
   // SignalR
-  implementation 'com.microsoft.signalr:signalr:3.1.7'
+  implementation 'com.microsoft.signalr:signalr:3.1.8'
 
   // Rx
   implementation "io.reactivex.rxjava2:rxjava:2.2.8"
@@ -153,5 +153,5 @@ dependencies {
   implementation 'com.twilio:video-android:5.11.1'
 
   // Gson
-  implementation 'com.google.code.gson:gson:2.8.5'
+  implementation 'com.google.code.gson:gson:2.8.6'
 }

@@ -14,6 +14,7 @@ class BLVideoView: RCTViewManager {
         let container = UIView()
         let inner = VideoView()
         inner.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        inner.contentMode = .scaleAspectFill
         container.addSubview(inner)
         return container;
     }
@@ -508,6 +509,13 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
         dictionary["isInProgress"] = call.isInProgress
         dictionary["interlocutorInfo"] = interlocutorInfoAsDictionary(interlocutorInfo: call.interlocutorInfo)
         dictionary["isMuted"] = call.isMuted
+        dictionary["accessToken"] = call.accessToken
+        dictionary["identity"] = call.identity
+        if let videoCall = call as? BLVideoCall {
+            dictionary["roomId"] = videoCall.roomId
+        } else {
+            dictionary["roomId"] = nil
+        }
         return dictionary
     }
     

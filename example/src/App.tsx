@@ -92,21 +92,23 @@ export default function App() {
     });
   }, []);
 
+  const remoteVideoViewProps = {
+    style: styles.video,
+    ref: (e: any) => { remoteVideoView = e; }
+  };
+
+  const localVideoViewProps = {
+    style: styles.video,
+    ref: (e: any) => { localVideoView = e; }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
        <ScrollView style={styles.scrollView}>
         <View style={styles.separator} />
-        <VideoView
-        style={styles.video}
-        ref={(e: any) => {
-          remoteVideoView = e;
-        }}/>
+        <VideoView {...remoteVideoViewProps}/>
         <View style={styles.separator} />
-        <VideoView 
-        style={styles.video}
-        ref={(e: any) => {
-          localVideoView = e;
-        }}/>
+        <VideoView {...localVideoViewProps}/>
         <Text>initialize: {initializeResult}</Text>
         <Button
           title="multiply"

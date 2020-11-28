@@ -8,15 +8,15 @@ BoostlingoSDK
 npm install react-native-boostlingo-sdk
 ```
 
+## Issues
+
+https://github.com/boostlingo/react-native-boostlingo-sdk/issues(https://github.com/boostlingo/react-native-boostlingo-sdk/issues)
+
 ## Usage
 
-```js
-import BoostlingoSdk from "react-native-boostlingo-sdk";
+https://github.com/boostlingo/boostlingo-ios(https://github.com/boostlingo/boostlingo-ios)
 
-// ...
-
-const result = await BoostlingoSdk.multiply(3, 7);
-```
+https://github.com/boostlingo/boostlingo-android(https://github.com/boostlingo/boostlingo-android)
 
 ## Contributing
 

@@ -125,12 +125,12 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
     
     @objc
     func getRegions(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
-        resolve(Boostlingo.getRegions())
+        resolve(BoostlingoSDK.getRegions())
     }
     
     @objc
     func getVersion(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
-        resolve(Boostlingo.getVersion())
+        resolve(BoostlingoSDK.getVersion())
     }
     
     @objc
@@ -140,7 +140,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
                 let authToken: String = config["authToken"] as! String
                 let region: String = config["region"] as! String
                 
-                self.boostlingo = Boostlingo(authToken: authToken, region: region, logLevel: .debug)
+                self.boostlingo = BoostlingoSDK(authToken: authToken, region: region)
                 self.boostlingo!.initialize() { [weak self] error in
                     guard let self = self else {
                         return
@@ -165,7 +165,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
             } catch let error as NSError {
                 reject("error", error.domain, error)
             } catch let error {
-                reject("error", "Error running Boostlingo SDK", error)
+                reject("error", "Error running SDK", error)
                 return
             }
         }
@@ -179,7 +179,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
         } catch let error as NSError {
             reject("error", error.domain, error)
         } catch let error {
-            reject("error", "Error running Boostlingo SDK", error)
+            reject("error", "Error running SDK", error)
             return
         }
     }
@@ -212,7 +212,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
         } catch let error as NSError {
             reject("error", error.domain, error)
         } catch let error {
-            reject("error", "Error running Boostlingo SDK", error)
+            reject("error", "Error running SDK", error)
             return
         }
     }
@@ -244,7 +244,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
         } catch let error as NSError {
             reject("error", error.domain, error)
         } catch let error {
-            reject("error", "Error running Boostlingo SDK", error)
+            reject("error", "Error running SDK", error)
             return
         }
     }
@@ -276,7 +276,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
         } catch let error as NSError {
             reject("error", error.domain, error)
         } catch let error {
-            reject("error", "Error running Boostlingo SDK", error)
+            reject("error", "Error running SDK", error)
             return
         }
     }
@@ -308,7 +308,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
         } catch let error as NSError {
             reject("error", error.domain, error)
         } catch let error {
-            reject("error", "Error running Boostlingo SDK", error)
+            reject("error", "Error running SDK", error)
             return
         }
     }
@@ -340,7 +340,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
         } catch let error as NSError {
             reject("error", error.domain, error)
         } catch let error {
-            reject("error", "Error running Boostlingo SDK", error)
+            reject("error", "Error running SDK", error)
             return
         }
     }
@@ -368,7 +368,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
         } catch let error as NSError {
             reject("error", error.domain, error)
         } catch let error {
-            reject("error", "Error running Boostlingo SDK", error)
+            reject("error", "Error running SDK", error)
             return
         }
     }
@@ -396,7 +396,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
         } catch let error as NSError {
             reject("error", error.domain, error)
         } catch let error {
-            reject("error", "Error running Boostlingo SDK", error)
+            reject("error", "Error running SDK", error)
             return
         }
     }
@@ -420,7 +420,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
         } catch let error as NSError {
             reject("error", error.domain, error)
         } catch let error {
-            reject("error", "Error running Boostlingo SDK", error)
+            reject("error", "Error running SDK", error)
             return
         }
     }
@@ -449,7 +449,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
         } catch let error as NSError {
             reject("error", error.domain, error)
         } catch let error {
-            reject("error", "Error running Boostlingo SDK", error)
+            reject("error", "Error running SDK", error)
             return
         }
     }

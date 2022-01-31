@@ -50,7 +50,7 @@ class BLVideoView: RCTViewManager {
 @objc(BoostlingoSdk)
 class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDelegate {
 
-    private var boostlingo: Boostlingo?
+    private var boostlingo: BoostlingoSDK?
     private var hasListeners: Bool = false
     private var remoteVideoView: VideoView?
     private var localVideoView: VideoView?

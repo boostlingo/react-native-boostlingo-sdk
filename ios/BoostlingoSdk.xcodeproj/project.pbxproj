@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		093BA724940477356B059A59 /* Pods_BoostlingoSdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6320774AEBE3C4250CD9F082 /* Pods_BoostlingoSdk.framework */; };
 		F4FF95D7245B92E800C19C63 /* BoostlingoSdk.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FF95D6245B92E800C19C63 /* BoostlingoSdk.swift */; };
+		F99973C492EFB4B932A2EC6F /* Pods_BoostlingoSdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A32A1D408DD5C936338D45D /* Pods_BoostlingoSdk.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,21 +24,21 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0A32A1D408DD5C936338D45D /* Pods_BoostlingoSdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BoostlingoSdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		134814201AA4EA6300B7C361 /* libBoostlingoSdk.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libBoostlingoSdk.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		6320774AEBE3C4250CD9F082 /* Pods_BoostlingoSdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BoostlingoSdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		A0D9B5A9C7FFBE3A58C050AC /* Pods-BoostlingoSdk.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BoostlingoSdk.debug.xcconfig"; path = "Target Support Files/Pods-BoostlingoSdk/Pods-BoostlingoSdk.debug.xcconfig"; sourceTree = "<group>"; };
+		1A32396099A76B0F583F9711 /* Pods-BoostlingoSdk.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BoostlingoSdk.release.xcconfig"; path = "Target Support Files/Pods-BoostlingoSdk/Pods-BoostlingoSdk.release.xcconfig"; sourceTree = "<group>"; };
 		B3E7B5891CC2AC0600A0062D /* BoostlingoSdk.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BoostlingoSdk.m; sourceTree = "<group>"; };
-		CEF80A59B91321ECB26A3F81 /* Pods-BoostlingoSdk.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BoostlingoSdk.release.xcconfig"; path = "Target Support Files/Pods-BoostlingoSdk/Pods-BoostlingoSdk.release.xcconfig"; sourceTree = "<group>"; };
+		D90DF6D8F19C009D7D0AEE0F /* Pods-BoostlingoSdk.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BoostlingoSdk.debug.xcconfig"; path = "Target Support Files/Pods-BoostlingoSdk/Pods-BoostlingoSdk.debug.xcconfig"; sourceTree = "<group>"; };
 		F4FF95D5245B92E700C19C63 /* BoostlingoSdk-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BoostlingoSdk-Bridging-Header.h"; sourceTree = "<group>"; };
 		F4FF95D6245B92E800C19C63 /* BoostlingoSdk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoostlingoSdk.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		58B511D81A9E6C8500147676 /* Frameworks */ = {
+		F6D46B2FE1D04C4386BCD96C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				093BA724940477356B059A59 /* Pods_BoostlingoSdk.framework in Frameworks */,
+				F99973C492EFB4B932A2EC6F /* Pods_BoostlingoSdk.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,15 +53,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		34B740A9C8C11DACFB4571E0 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				A0D9B5A9C7FFBE3A58C050AC /* Pods-BoostlingoSdk.debug.xcconfig */,
-				CEF80A59B91321ECB26A3F81 /* Pods-BoostlingoSdk.release.xcconfig */,
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
@@ -69,17 +60,27 @@
 				B3E7B5891CC2AC0600A0062D /* BoostlingoSdk.m */,
 				F4FF95D5245B92E700C19C63 /* BoostlingoSdk-Bridging-Header.h */,
 				134814211AA4EA7D00B7C361 /* Products */,
-				34B740A9C8C11DACFB4571E0 /* Pods */,
-				80389F63514CB3318AA87CE8 /* Frameworks */,
+				EDF08E7B7201E50D643174AA /* Pods */,
+				A84488FAF18ABA82B0519A36 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
-		80389F63514CB3318AA87CE8 /* Frameworks */ = {
+		A84488FAF18ABA82B0519A36 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				6320774AEBE3C4250CD9F082 /* Pods_BoostlingoSdk.framework */,
+				0A32A1D408DD5C936338D45D /* Pods_BoostlingoSdk.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		EDF08E7B7201E50D643174AA /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				D90DF6D8F19C009D7D0AEE0F /* Pods-BoostlingoSdk.debug.xcconfig */,
+				1A32396099A76B0F583F9711 /* Pods-BoostlingoSdk.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -89,10 +90,10 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 58B511EF1A9E6C8500147676 /* Build configuration list for PBXNativeTarget "BoostlingoSdk" */;
 			buildPhases = (
-				0773106555E9A5BB8C8AF812 /* [CP] Check Pods Manifest.lock */,
+				751D31D0230190F11C0DBE62 /* [CP] Check Pods Manifest.lock */,
 				58B511D71A9E6C8500147676 /* Sources */,
-				58B511D81A9E6C8500147676 /* Frameworks */,
 				58B511D91A9E6C8500147676 /* CopyFiles */,
+				F6D46B2FE1D04C4386BCD96C /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -136,7 +137,7 @@
 /* End PBXProject section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		0773106555E9A5BB8C8AF812 /* [CP] Check Pods Manifest.lock */ = {
+		751D31D0230190F11C0DBE62 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -198,7 +199,6 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -216,7 +216,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -260,7 +260,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
@@ -269,7 +269,7 @@
 		};
 		58B511F01A9E6C8500147676 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A0D9B5A9C7FFBE3A58C050AC /* Pods-BoostlingoSdk.debug.xcconfig */;
+			baseConfigurationReference = D90DF6D8F19C009D7D0AEE0F /* Pods-BoostlingoSdk.debug.xcconfig */;
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -289,7 +289,7 @@
 		};
 		58B511F11A9E6C8500147676 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = CEF80A59B91321ECB26A3F81 /* Pods-BoostlingoSdk.release.xcconfig */;
+			baseConfigurationReference = 1A32396099A76B0F583F9711 /* Pods-BoostlingoSdk.release.xcconfig */;
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",

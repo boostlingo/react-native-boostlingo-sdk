@@ -4,11 +4,10 @@ import android.view.ViewGroup
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.bridge.WritableNativeMap
 import com.facebook.react.uimanager.ThemedReactContext
-import com.twilio.video.VideoFrame
-import com.twilio.video.VideoRenderer
 import com.twilio.video.VideoScaleType
 import com.twilio.video.VideoView
 import tvi.webrtc.RendererCommon
+import tvi.webrtc.RendererCommon.RendererEvents
 import tvi.webrtc.RendererCommon.ScalingType
 
 class RNVideoViewGroup(themedReactContext: ThemedReactContext) : ViewGroup(themedReactContext) {
@@ -51,10 +50,10 @@ class RNVideoViewGroup(themedReactContext: ThemedReactContext) : ViewGroup(theme
                 videoWidth = 640
             }
             val displaySize = RendererCommon.getDisplaySize(
-                    scalingType,
-                    videoWidth / videoHeight.toFloat(),
-                    width,
-                    height
+                scalingType,
+                videoWidth / videoHeight.toFloat(),
+                width,
+                height
             )
             l = (width - displaySize.x) / 2
             t = (height - displaySize.y) / 2
@@ -69,27 +68,26 @@ class RNVideoViewGroup(themedReactContext: ThemedReactContext) : ViewGroup(theme
         surfaceViewRenderer?.setVideoScaleType(VideoScaleType.ASPECT_FILL)
         addView(surfaceViewRenderer)
         surfaceViewRenderer?.setListener(
-                object : VideoRenderer.Listener {
-                    override fun onFirstFrame() {}
-                    override fun onFrameDimensionsChanged(vw: Int, vh: Int, rotation: Int) {
-                        synchronized(layoutSync) {
-                            if (rotation == VideoFrame.RotationAngle.ROTATION_90.value ||
-                                    rotation == VideoFrame.RotationAngle.ROTATION_270.value) {
-                                videoHeight = vw
-                                videoWidth = vh
-                            } else {
-                                videoHeight = vh
-                                videoWidth = vw
-                            }
-                            forceLayout()
-                            val event: WritableMap = WritableNativeMap()
-                            event.putInt("height", vh)
-                            event.putInt("width", vw)
-                            event.putInt("rotation", rotation)
-//                            pushEvent(this@RNVideoViewGroup, ON_FRAME_DIMENSIONS_CHANGED, event)
+            object : RendererEvents {
+                override fun onFirstFrameRendered() {}
+                override fun onFrameResolutionChanged(vw: Int, vh: Int, rotation: Int) {
+                    synchronized(layoutSync) {
+                        if (rotation == 90 || rotation == 270) {
+                            videoHeight = vw
+                            videoWidth = vh
+                        } else {
+                            videoHeight = vh
+                            videoWidth = vw
                         }
+                        forceLayout()
+                        val event: WritableMap = WritableNativeMap()
+                        event.putInt("height", vh)
+                        event.putInt("width", vw)
+                        event.putInt("rotation", rotation)
+//                        pushEvent(this@RNVideoViewGroup, ON_FRAME_DIMENSIONS_CHANGED, event)
                     }
                 }
+            }
         )
     }
 }

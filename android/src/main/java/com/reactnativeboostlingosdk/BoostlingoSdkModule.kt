@@ -9,10 +9,9 @@ import com.boostlingo.android.*
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.twilio.video.VideoView
-import io.reactivex.CompletableObserver
-import io.reactivex.SingleObserver
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
+import io.reactivex.rxjava3.core.CompletableObserver
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.Disposable
 
 class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext), BLCallStateListener, BLVideoListener, BLChatListener {
 
@@ -114,26 +113,23 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
     @ReactMethod
     fun getCallDictionaries(promise: Promise) {
         try {
-            boostlingo!!.callDictionaries.subscribe(object : SingleObserver<CallDictionaries?> {
-                override fun onSubscribe(d: Disposable) {
-                    compositeDisposable.addAll(d)
-                }
-
-                override fun onSuccess(t: CallDictionaries) {
-                    promise.resolve(mapCallDictionaries(t))
-                }
-
-                override fun onError(e: Throwable) {
-                    val apiCallException = e as? BLApiCallException?
-                    var message = ""
-                    if (apiCallException != null) {
-                        message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
-                    } else {
-                        message = e.localizedMessage
+            compositeDisposable.add(
+                boostlingo!!.callDictionaries.subscribe(
+                    { t ->
+                        promise.resolve(mapCallDictionaries(t))
+                    },
+                    { e ->
+                        val apiCallException = e as? BLApiCallException?
+                        var message = ""
+                        if (apiCallException != null) {
+                            message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
+                        } else {
+                            message = e.localizedMessage
+                        }
+                        promise.reject("error", Exception(message, e))
                     }
-                    promise.reject("error", Exception(message, e))
-                }
-            })
+                )
+            )
         } catch (e: Exception) {
             promise.reject("error", Exception("Error running Boostlingo SDK", e))
         }
@@ -142,26 +138,24 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
     @ReactMethod
     fun getProfile(promise: Promise) {
         try {
-            boostlingo!!.profile.subscribe(object : SingleObserver<Profile?> {
-                override fun onSubscribe(d: Disposable) {
-                    compositeDisposable.addAll(d)
-                }
-
-                override fun onSuccess(t: Profile) {
-                    promise.resolve(mapProfile(t))
-                }
-
-                override fun onError(e: Throwable) {
-                    val apiCallException = e as? BLApiCallException?
-                    var message = ""
-                    if (apiCallException != null) {
-                        message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
-                    } else {
-                        message = e.localizedMessage
+            compositeDisposable.add(
+                boostlingo!!.profile.subscribe(
+                    { t ->
+                        promise.resolve(mapProfile(t))
+                    },
+                    { e ->
+                        val apiCallException = e as? BLApiCallException?
+                        var message = ""
+                        if (apiCallException != null) {
+                            message =
+                                "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
+                        } else {
+                            message = e.localizedMessage
+                        }
+                        promise.reject("error", Exception(message, e))
                     }
-                    promise.reject("error", Exception(message, e))
-                }
-            })
+                )
+            )
         } catch (e: Exception) {
             promise.reject("error", Exception("Error running Boostlingo SDK", e))
         }
@@ -170,26 +164,23 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
     @ReactMethod
     fun getVoiceLanguages(promise: Promise) {
         try {
-            boostlingo!!.voiceLanguages.subscribe(object : SingleObserver<List<Language>?> {
-                override fun onSubscribe(d: Disposable) {
-                    compositeDisposable.addAll(d)
-                }
-
-                override fun onSuccess(t: List<Language>) {
-                    promise.resolve(mapLanguages(t))
-                }
-
-                override fun onError(e: Throwable) {
-                    val apiCallException = e as? BLApiCallException?
-                    var message = ""
-                    if (apiCallException != null) {
-                        message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
-                    } else {
-                        message = e.localizedMessage
+            compositeDisposable.add(
+                boostlingo!!.voiceLanguages.subscribe(
+                    { t ->
+                        promise.resolve(mapLanguages(t))
+                    },
+                    { e ->
+                        val apiCallException = e as? BLApiCallException?
+                        var message = ""
+                        if (apiCallException != null) {
+                            message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
+                        } else {
+                            message = e.localizedMessage
+                        }
+                        promise.reject("error", Exception(message, e))
                     }
-                    promise.reject("error", Exception(message, e))
-                }
-            })
+                )
+            )
         } catch (e: Exception) {
             promise.reject("error", Exception("Error running Boostlingo SDK", e))
         }
@@ -198,26 +189,23 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
     @ReactMethod
     fun getVideoLanguages(promise: Promise) {
         try {
-            boostlingo!!.videoLanguages.subscribe(object : SingleObserver<List<Language>?> {
-                override fun onSubscribe(d: Disposable) {
-                    compositeDisposable.addAll(d)
-                }
-
-                override fun onSuccess(t: List<Language>) {
-                    promise.resolve(mapLanguages(t))
-                }
-
-                override fun onError(e: Throwable) {
-                    val apiCallException = e as? BLApiCallException?
-                    var message = ""
-                    if (apiCallException != null) {
-                        message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
-                    } else {
-                        message = e.localizedMessage
+            compositeDisposable.add(
+                boostlingo!!.videoLanguages.subscribe(
+                    { t ->
+                        promise.resolve(mapLanguages(t))
+                    },
+                    { e ->
+                        val apiCallException = e as? BLApiCallException?
+                        var message = ""
+                        if (apiCallException != null) {
+                            message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
+                        } else {
+                            message = e.localizedMessage
+                        }
+                        promise.reject("error", Exception(message, e))
                     }
-                    promise.reject("error", Exception(message, e))
-                }
-            })
+                )
+            )
         } catch (e: Exception) {
             promise.reject("error", Exception("Error running Boostlingo SDK", e))
         }
@@ -226,26 +214,23 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
     @ReactMethod
     fun getCallDetails(callId: Int, promise: Promise) {
         try {
-            boostlingo!!.getCallDetails(callId).subscribe(object : SingleObserver<CallDetails?> {
-                override fun onSubscribe(d: Disposable) {
-                    compositeDisposable.addAll(d)
-                }
-
-                override fun onSuccess(t: CallDetails) {
-                    promise.resolve(mapCallDetails(t))
-                }
-
-                override fun onError(e: Throwable) {
-                    val apiCallException = e as? BLApiCallException?
-                    var message = ""
-                    if (apiCallException != null) {
-                        message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
-                    } else {
-                        message = e.localizedMessage
+            compositeDisposable.add(
+                boostlingo!!.getCallDetails(callId).subscribe(
+                    { t ->
+                        promise.resolve(mapCallDetails(t))
+                    },
+                    { e ->
+                        val apiCallException = e as? BLApiCallException?
+                        var message = ""
+                        if (apiCallException != null) {
+                            message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
+                        } else {
+                            message = e.localizedMessage
+                        }
+                        promise.reject("error", Exception(message, e))
                     }
-                    promise.reject("error", Exception(message, e))
-                }
-            })
+                )
+            )
         } catch (e: Exception) {
             promise.reject("error", Exception("Error running Boostlingo SDK", e))
         }
@@ -260,26 +245,24 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
                     request.getInt("serviceTypeId"),
                     if (request.hasKey("genderId") && !request.isNull("genderId")) request.getInt("genderId") else null)
 
-            boostlingo!!.makeVoiceCall(calRequest, this, this).subscribe(object : SingleObserver<BLVoiceCall?> {
-                override fun onSubscribe(d: Disposable) {
-                    compositeDisposable.addAll(d)
-                }
-
-                override fun onSuccess(t: BLVoiceCall) {
-                    promise.resolve(mapCall(t))
-                }
-
-                override fun onError(e: Throwable) {
-                    val apiCallException = e as? BLApiCallException?
-                    var message = ""
-                    if (apiCallException != null) {
-                        message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
-                    } else {
-                        message = e.localizedMessage
+            compositeDisposable.add(
+                boostlingo!!.makeVoiceCall(calRequest, this, this)
+                    .subscribe(
+                    { t ->
+                        promise.resolve(mapCall(t))
+                    },
+                    { e ->
+                        val apiCallException = e as? BLApiCallException?
+                        var message = ""
+                        if (apiCallException != null) {
+                            message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
+                        } else {
+                            message = e.localizedMessage
+                        }
+                        promise.reject("error", Exception(message, e))
                     }
-                    promise.reject("error", Exception(message, e))
-                }
-            })
+                )
+            )
         } catch (e: Exception) {
             promise.reject("error", Exception("Error running Boostlingo SDK", e))
         }
@@ -295,26 +278,24 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
                     if (request.hasKey("genderId") && !request.isNull("genderId")) request.getInt("genderId") else null,
                     true)
 
-            boostlingo!!.makeVideoCall(calRequest, this, this, this, remoteVideoView!!, localVideoView).subscribe(object : SingleObserver<BLVideoCall?> {
-                override fun onSubscribe(d: Disposable) {
-                    compositeDisposable.addAll(d)
-                }
-
-                override fun onSuccess(t: BLVideoCall) {
-                    promise.resolve(mapCall(t))
-                }
-
-                override fun onError(e: Throwable) {
-                    val apiCallException = e as? BLApiCallException?
-                    var message = ""
-                    if (apiCallException != null) {
-                        message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
-                    } else {
-                        message = e.localizedMessage
-                    }
-                    promise.reject("error", Exception(message, e))
-                }
-            })
+            compositeDisposable.add(
+                boostlingo!!.makeVideoCall(calRequest, this, this, this, remoteVideoView!!, localVideoView)
+                    .subscribe(
+                        { t ->
+                            promise.resolve(mapCall(t))
+                        },
+                        { e ->
+                            val apiCallException = e as? BLApiCallException?
+                            var message = ""
+                            if (apiCallException != null) {
+                                message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
+                            } else {
+                                message = e.localizedMessage
+                            }
+                            promise.reject("error", Exception(message, e))
+                        }
+                    )
+            )
         } catch (e: Exception) {
             promise.reject("error", Exception("Error running Boostlingo SDK", e))
         }
@@ -356,26 +337,24 @@ class BoostlingoSdkModule(reactContext: ReactApplicationContext) : ReactContextB
     @ReactMethod
     fun sendChatMessage(text: String, promise: Promise) {
         try {
-            boostlingo!!.sendChatMessage(text).subscribe(object : SingleObserver<ChatMessage?> {
-                override fun onSubscribe(d: Disposable) {
-                    compositeDisposable.addAll(d)
-                }
-
-                override fun onSuccess(t: ChatMessage) {
-                    promise.resolve(mapChatMessage(t))
-                }
-
-                override fun onError(e: Throwable) {
-                    val apiCallException = e as? BLApiCallException?
-                    var message = ""
-                    if (apiCallException != null) {
-                        message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
-                    } else {
-                        message = e.localizedMessage
-                    }
-                    promise.reject("error", Exception(message, e))
-                }
-            })
+            compositeDisposable.add(
+                boostlingo!!.sendChatMessage(text)
+                    .subscribe(
+                        { t ->
+                            promise.resolve(mapChatMessage(t))
+                        },
+                        { e ->
+                            val apiCallException = e as? BLApiCallException?
+                            var message = ""
+                            if (apiCallException != null) {
+                                message = "${apiCallException.localizedMessage}, statusCode: ${apiCallException.statusCode}"
+                            } else {
+                                message = e.localizedMessage
+                            }
+                            promise.reject("error", Exception(message, e))
+                        }
+                    )
+            )
         } catch (e: Exception) {
             promise.reject("error", Exception("Error running Boostlingo SDK", e))
         }

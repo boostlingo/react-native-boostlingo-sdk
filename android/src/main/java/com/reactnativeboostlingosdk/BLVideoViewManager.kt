@@ -13,14 +13,14 @@ import java.lang.Exception
  */
 class BLVideoViewManager(
     private val reactContext: ReactApplicationContext
-) : SimpleViewManager<RNVideoViewGroup>() {
+) : SimpleViewManager<BLVideoViewGroup>() {
 
     override fun getName(): String {
         return "BLVideoView"
     }
 
-    override fun createViewInstance(reactContext: ThemedReactContext): RNVideoViewGroup {
-        return RNVideoViewGroup(reactContext)
+    override fun createViewInstance(reactContext: ThemedReactContext): BLVideoViewGroup {
+        return BLVideoViewGroup(reactContext)
     }
 
     override fun getCommandsMap(): MutableMap<String, Int> {
@@ -31,7 +31,7 @@ class BLVideoViewManager(
         )
     }
 
-    override fun receiveCommand(root: RNVideoViewGroup, commandId: Int, args: ReadableArray?) {
+    override fun receiveCommand(root: BLVideoViewGroup, commandId: Int, args: ReadableArray?) {
         val boostlingoSdkModule  = reactContext.catalystInstance.getNativeModule("BoostlingoSdk") as BoostlingoSdkModule
         when(commandId) {
             1 -> {

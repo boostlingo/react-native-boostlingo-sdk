@@ -11,7 +11,7 @@ import com.twilio.video.VideoView
 import tvi.webrtc.RendererCommon
 import tvi.webrtc.RendererCommon.ScalingType
 
-class RNVideoViewGroup(themedReactContext: ThemedReactContext) : ViewGroup(themedReactContext) {
+class BLVideoViewGroup(themedReactContext: ThemedReactContext) : ViewGroup(themedReactContext) {
     private var surfaceViewRenderer: VideoView? = null
     private var videoWidth = 0
     private var videoHeight = 0
@@ -86,7 +86,7 @@ class RNVideoViewGroup(themedReactContext: ThemedReactContext) : ViewGroup(theme
                             event.putInt("height", vh)
                             event.putInt("width", vw)
                             event.putInt("rotation", rotation)
-//                            pushEvent(this@RNVideoViewGroup, ON_FRAME_DIMENSIONS_CHANGED, event)
+//                            pushEvent(this@BLVideoViewGroup, ON_FRAME_DIMENSIONS_CHANGED, event)
                         }
                     }
                 }

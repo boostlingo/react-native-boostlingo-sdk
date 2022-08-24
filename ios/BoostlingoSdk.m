@@ -3,19 +3,15 @@
 
 @interface RCT_EXTERN_MODULE(BLVideoView, RCTViewManager)
 
-    RCT_EXTERN_METHOD(attachAsLocal:(nonnull NSNumber *)node)
+    RCT_EXTERN_METHOD(attachAsLocalRenderer:(nonnull NSNumber *)node commandID:(NSInteger)commandID commandArgs:(NSArray *)commandArgs)
 
-    RCT_EXTERN_METHOD(attachAsRemote:(nonnull NSNumber *)node)
-
-    RCT_EXTERN_METHOD(detach:(nonnull NSNumber *)node)
+    RCT_EXTERN_METHOD(attachAsRemoteRenderer:(nonnull NSNumber *)node commandID:(NSInteger)commandID commandArgs:(NSArray *)commandArgs)
 
 @end
 
 @interface RCT_EXTERN_MODULE(BoostlingoSdk, RCTEventEmitter)
 
     RCT_EXTERN_METHOD(supportedEvents)
-
-    RCT_EXTERN_METHOD(multiply:(float)a b:(float)b resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 
     RCT_EXTERN_METHOD(getRegions:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 
@@ -33,7 +29,7 @@
 
     RCT_EXTERN_METHOD(getVideoLanguages:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 
-    RCT_EXTERN_METHOD(getCallDetails:(NSInteger *)callId resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+    RCT_EXTERN_METHOD(getCallDetails:(NSInteger *)request resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 
     RCT_EXTERN_METHOD(makeVoiceCall:(NSDictionary *)request resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 
@@ -50,6 +46,12 @@
     RCT_EXTERN_METHOD(enableVideo:(BOOL)isVideoEnabled)
 
     RCT_EXTERN_METHOD(flipCamera)
+
+    RCT_EXTERN_METHOD(dialThirdParty:(NSString *)request resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+
+    RCT_EXTERN_METHOD(hangUpThirdParty:(NSString *)request resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+
+    RCT_EXTERN_METHOD(muteThirdParty:(NSString *)request resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 
     RCT_EXTERN_METHOD(dispose)
 

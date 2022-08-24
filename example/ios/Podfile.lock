@@ -1,9 +1,9 @@
 PODS:
   - boost-for-react-native (1.63.0)
-  - BoostlingoSDK (0.5.10):
+  - BoostlingoSDK (1.0.1):
     - SwiftSignalRClient (= 0.9.0)
-    - TwilioVideo (= 4.6.3)
-    - TwilioVoice (= 6.3.0)
+    - TwilioVideo (= 5.1.1)
+    - TwilioVoice (= 6.4.2)
   - DoubleConversion (1.1.6)
   - FBLazyVector (0.63.4)
   - FBReactNativeSpec (0.63.4):
@@ -190,7 +190,7 @@ PODS:
     - React-jsi (= 0.63.4)
   - React-jsinspector (0.63.4)
   - react-native-boostlingo-sdk (0.1.1):
-    - BoostlingoSDK (= 0.5.10)
+    - BoostlingoSDK (= 1.0.1)
     - React-Core
   - React-RCTActionSheet (0.63.4):
     - React-Core/RCTActionSheetHeaders (= 0.63.4)
@@ -253,8 +253,8 @@ PODS:
     - React-cxxreact (= 0.63.4)
     - React-jsi (= 0.63.4)
   - SwiftSignalRClient (0.9.0)
-  - TwilioVideo (4.6.3)
-  - TwilioVoice (6.3.0)
+  - TwilioVideo (5.1.1)
+  - TwilioVoice (6.4.2)
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -354,7 +354,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
-  BoostlingoSDK: 196a8a0b174fbca87d7a0902dc87a349a1a88c41
+  BoostlingoSDK: c12b09520401b256bd8768a573bbb5b46bae279f
   DoubleConversion: cde416483dac037923206447da6e1454df403714
   FBLazyVector: 3bb422f41b18121b71783a905c10e58606f7dc3e
   FBReactNativeSpec: f2c97f2529dd79c083355182cc158c9f98f4bd6e
@@ -370,7 +370,7 @@ SPEC CHECKSUMS:
   React-jsi: a0418934cf48f25b485631deb27c64dc40fb4c31
   React-jsiexecutor: 93bd528844ad21dc07aab1c67cb10abae6df6949
   React-jsinspector: 58aef7155bc9a9683f5b60b35eccea8722a4f53a
-  react-native-boostlingo-sdk: 357de957d1a5b1c0f5c55594b29713e67b1090b3
+  react-native-boostlingo-sdk: 1cf6f28c09c2ac51af00c27ef6e5af8d734633fb
   React-RCTActionSheet: 89a0ca9f4a06c1f93c26067af074ccdce0f40336
   React-RCTAnimation: 1bde3ecc0c104c55df246eda516e0deb03c4e49b
   React-RCTBlob: a97d378b527740cc667e03ebfa183a75231ab0f0
@@ -382,10 +382,10 @@ SPEC CHECKSUMS:
   React-RCTVibration: ae4f914cfe8de7d4de95ae1ea6cc8f6315d73d9d
   ReactCommon: 73d79c7039f473b76db6ff7c6b159c478acbbb3b
   SwiftSignalRClient: aba134f3d30f7eeb01008929e387b6e66546c7d5
-  TwilioVideo: 4afaac028c5886f2f3b313a9fcc146a6b7ca34e2
-  TwilioVoice: 6b1d796dcdec4ec6e6d2165bc66a266db1d2d93f
+  TwilioVideo: 56aa8ca29205fff9ba69e167f818febd2d41ff95
+  TwilioVoice: 1bafb36f8709e60097086137c0d48205a46009d6
   Yoga: 4bd86afe9883422a7c4028c00e34790f560923d6
 
-PODFILE CHECKSUM: 98040d03c91de599d84cd792432ae4dc66002d9e
+PODFILE CHECKSUM: dcd8328cd56bca083881c2f8ddae60ac093402c6
 
-COCOAPODS: 1.11.2
+COCOAPODS: 1.11.3

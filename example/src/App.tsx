@@ -112,18 +112,6 @@ export default function App() {
         <VideoView {...localVideoViewProps}/>
         <Text>initialize: {initializeResult}</Text>
         <Button
-          title="multiply"
-          onPress={() => {
-            BoostlingoSdk.multiply(3, 9)
-            .then((result: any) => {
-              setResult(result);
-            })
-            .catch((error: any) => {
-              setResult(error);
-            });
-          }}
-        />
-        <Button
           title="getRegions"
           onPress={() => {
             BoostlingoSdk.getRegions()

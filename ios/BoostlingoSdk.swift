@@ -20,21 +20,21 @@ class BLVideoView: RCTViewManager {
     }
     
     @objc
-    func attachAsLocalRenderer(_ node: NSNumber, commandID: NSInteger, commandArgs: NSArray) {
-        DispatchQueue.main.async {
-            let component = self.bridge.uiManager.view(forReactTag: node)! as! UIView
-            let boostlingoSdkModule = self.bridge.module(forName: "BoostlingoSdk") as! BoostlingoSdk
-            boostlingoSdkModule.setLocalRenderer(component.subviews[0] as! VideoView)
-        }
+    func attachAsLocalRenderer(_ node: NSNumber) {
+      DispatchQueue.main.async {
+        let component = self.bridge.uiManager.view(forReactTag: node)!
+        let boostlingoSdkModule = self.bridge.module(forName: "BoostlingoSdk") as! BoostlingoSdk
+        boostlingoSdkModule.setLocalRenderer(component.subviews[0] as? VideoView)
+      }
     }
     
     @objc
-    func attachAsRemoteRenderer(_ node: NSNumber, commandID: NSInteger, commandArgs: NSArray) {
-        DispatchQueue.main.async {
-            let component = self.bridge.uiManager.view(forReactTag: node)! as! UIView
-            let boostlingoSdkModule = self.bridge.module(forName: "BoostlingoSdk") as! BoostlingoSdk
-            boostlingoSdkModule.setRemoteRenderer(component.subviews[0] as! VideoView, commandArgs[0] as! String)
-        }
+    func attachAsRemoteRenderer(_ node: NSNumber, identity: NSString?) {
+      DispatchQueue.main.async {
+        let component = self.bridge.uiManager.view(forReactTag: node)!
+        let boostlingoSdkModule = self.bridge.module(forName: "BoostlingoSdk") as! BoostlingoSdk
+        boostlingoSdkModule.setRemoteRenderer(component.subviews[0] as? VideoView, identity! as String)
+      }
     }
 }
 
@@ -71,15 +71,19 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
     }
     
     func setLocalRenderer(_ localVideoView: VideoView?) {
-        self.localVideoView = localVideoView
+      self.localVideoView = localVideoView
     }
     
     func setRemoteRenderer(_ remoteVideoView: VideoView?, _ identity: String) {
-        guard let currentCall = boostlingo!.currentCall else {
-            return
-        }
+      guard let currentCall = boostlingo!.currentCall as? BLVideoCall else {
+        return
+      }
 
-        currentCall.addRenderer(for: identity, renderer: remoteVideoView)
+      guard let remoteVideoView = remoteVideoView else {
+        return
+      }
+
+      currentCall.addRenderer(for: identity, renderer: remoteVideoView)
     }
     
     @objc
@@ -312,8 +316,8 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
                 dataArray.map { $0 as! [String: String] }
                     .map {
                         AdditionalField(
-                            key: $0["key"],
-                            value: $0["value"]
+                            key: $0["key"]!,
+                            value: $0["value"]!
                         )
                     }
             }
@@ -361,8 +365,8 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
                 dataArray.map { $0 as! [String: String] }
                     .map {
                         AdditionalField(
-                            key: $0["key"],
-                            value: $0["value"]
+                            key: $0["key"]!,
+                            value: $0["value"]!
                         )
                     }
             }
@@ -458,32 +462,33 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
     
     @objc
     func muteCall(_ isMuted: Bool) {
-        guard let currentCall = boostlingo!.currentCall else {
-            return
-        }
-        currentCall.isMuted = isMuted
+      guard let call = boostlingo!.currentCall else {
+          return
+      }
+        
+      call.isMuted = isMuted
     }
     
     @objc
     func enableVideo(_ isVideoEnabled: Bool) {
-        guard let currentCall = boostlingo!.currentCall as? BLVideoCall else {
+        guard let call = boostlingo!.currentCall as? BLVideoCall else {
             return
         }
-        currentCall.isVideoEnabled = isVideoEnabled
+        call.isVideoEnabled = isVideoEnabled
     }
     
     @objc
     func flipCamera() {
-        guard let currentCall = boostlingo!.currentCall as? BLVideoCall else {
+        guard let call = boostlingo!.currentCall as? BLVideoCall else {
             return
         }
-        currentCall.flipCamera()
+        call.flipCamera()
     }
     
     @objc
     func dialThirdParty(_ request: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         do {
-            guard let currentCall = boostlingo!.currentCall else {
+            guard let call = boostlingo!.currentCall else {
                 resolve(nil)
                 return
             }
@@ -510,9 +515,9 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
     }
 
     @objc
-    func handUpThirdParty(_ request: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    func hangUpThirdParty(_ request: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         do {
-            guard let currentCall = boostlingo!.currentCall else {
+            guard let call = boostlingo!.currentCall else {
                 resolve(nil)
                 return
             }
@@ -539,14 +544,24 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
     }
 
     @objc
-    func muteThirdParty(_ request: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    func muteThirdParty(_ request: NSArray, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         do {
-            guard let currentCall = boostlingo!.currentCall else {
+            guard let call = boostlingo!.currentCall else {
                 resolve(nil)
                 return
             }
 
-            call.muteThirdPartyParticipant(identity: request) { [weak self] error in
+            guard let identity = request[0] as? String else {
+                resolve(nil)
+                return 
+            }
+
+            guard let mute = request[1] as? Bool else {
+                resolve(nil)
+                return 
+            }
+
+            call.muteThirdPartyParticipant(identity: identity, mute: mute) { [weak self] error in
                 guard let self = self else { return }
                 
                 DispatchQueue.main.async {

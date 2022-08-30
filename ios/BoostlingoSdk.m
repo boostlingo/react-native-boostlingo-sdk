@@ -3,9 +3,9 @@
 
 @interface RCT_EXTERN_MODULE(BLVideoView, RCTViewManager)
 
-    RCT_EXTERN_METHOD(attachAsLocalRenderer:(nonnull NSNumber *)node commandID:(NSInteger)commandID commandArgs:(NSArray *)commandArgs)
+    RCT_EXTERN_METHOD(attachAsLocalRenderer:(nonnull NSNumber *)node)
 
-    RCT_EXTERN_METHOD(attachAsRemoteRenderer:(nonnull NSNumber *)node commandID:(NSInteger)commandID commandArgs:(NSArray *)commandArgs)
+    RCT_EXTERN_METHOD(attachAsRemoteRenderer:(nonnull NSNumber *)node identity:(NSString *)identity)
 
 @end
 
@@ -51,7 +51,7 @@
 
     RCT_EXTERN_METHOD(hangUpThirdParty:(NSString *)request resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 
-    RCT_EXTERN_METHOD(muteThirdParty:(NSString *)request resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+    RCT_EXTERN_METHOD(muteThirdParty:(NSArray *)request resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 
     RCT_EXTERN_METHOD(dispose)
 

@@ -20,39 +20,29 @@ class BLVideoView: RCTViewManager {
     }
     
     @objc
-    func attachAsLocal(_ node: NSNumber) {
-        DispatchQueue.main.async {
-            let component = self.bridge.uiManager.view(forReactTag: node)! as! UIView
-            let boostlingoSdkModule = self.bridge.module(forName: "BoostlingoSdk") as! BoostlingoSdk
-            boostlingoSdkModule.setLocalVideoView(component.subviews[0] as! VideoView)
-        }
+    func attachAsLocalRenderer(_ node: NSNumber) {
+      DispatchQueue.main.async {
+        let component = self.bridge.uiManager.view(forReactTag: node)!
+        let boostlingoSdkModule = self.bridge.module(forName: "BoostlingoSdk") as! BoostlingoSdk
+        boostlingoSdkModule.setLocalRenderer(component.subviews[0] as? VideoView)
+      }
     }
     
     @objc
-    func attachAsRemote(_ node: NSNumber) {
-        DispatchQueue.main.async {
-            let component = self.bridge.uiManager.view(forReactTag: node)! as! UIView
-            let boostlingoSdkModule = self.bridge.module(forName: "BoostlingoSdk") as! BoostlingoSdk
-            boostlingoSdkModule.setRemoteVideoView(component.subviews[0] as! VideoView)
-        }
-    }
-    
-    @objc
-    func detach(_ node: NSNumber) {
-        DispatchQueue.main.async {
-            let component = self.bridge.uiManager.view(forReactTag: node)! as! UIView
-            let boostlingoSdkModule = self.bridge.module(forName: "BoostlingoSdk") as! BoostlingoSdk
-            boostlingoSdkModule.detachVideoView(component.subviews[0] as! VideoView)
-        }
+    func attachAsRemoteRenderer(_ node: NSNumber, identity: NSString?) {
+      DispatchQueue.main.async {
+        let component = self.bridge.uiManager.view(forReactTag: node)!
+        let boostlingoSdkModule = self.bridge.module(forName: "BoostlingoSdk") as! BoostlingoSdk
+        boostlingoSdkModule.setRemoteRenderer(component.subviews[0] as? VideoView, identity! as String)
+      }
     }
 }
 
 @objc(BoostlingoSdk)
-class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDelegate {
+class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate {
 
     private var boostlingo: BoostlingoSDK?
     private var hasListeners: Bool = false
-    private var remoteVideoView: VideoView?
     private var localVideoView: VideoView?
     
     @objc
@@ -64,16 +54,10 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
             "chatConnected",
             "chatDisconnected",
             "chatMessageRecieved",
-            "remoteAudioEnabled",
-            "remoteAudioDisabled",
-            "remoteVideoEnabled",
-            "remoteVideoDisabled",
-            "remoteAudioPublished",
-            "remoteAudioUnpublished",
-            "remoteVideoPublished",
-            "remoteVideoUnpublished",
-            "localVideoViewAttached",
-            "remoteVideoViewAttached"]
+            "callParticipantConnected",
+            "callParticipantUpdated",
+            "callParticipantDisconnected"
+        ]
     }
     
     @objc
@@ -86,41 +70,25 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
         hasListeners = false
     }
     
-    func setLocalVideoView(_ localVideoView: VideoView?) {
-        self.localVideoView = localVideoView
-        if (hasListeners) {
-            DispatchQueue.main.async {
-                self.sendEvent(withName: "localVideoViewAttached", body: nil)
-            }
-        }
+    func setLocalRenderer(_ localVideoView: VideoView?) {
+      self.localVideoView = localVideoView
     }
     
-    func setRemoteVideoView(_ remoteVideoView: VideoView?) {
-        self.remoteVideoView = remoteVideoView
-        if (hasListeners) {
-            DispatchQueue.main.async {
-                self.sendEvent(withName: "remoteVideoViewAttached", body: nil)
-            }
-        }
-    }
-    
-    func detachVideoView(_ videoView: VideoView?) {
-        if localVideoView == videoView {
-            localVideoView = nil
-        }
-        if remoteVideoView == videoView {
-            remoteVideoView = nil
-        }
+    func setRemoteRenderer(_ remoteVideoView: VideoView?, _ identity: String) {
+      guard let currentCall = boostlingo!.currentCall as? BLVideoCall else {
+        return
+      }
+
+      guard let remoteVideoView = remoteVideoView else {
+        return
+      }
+
+      currentCall.addRenderer(for: identity, renderer: remoteVideoView)
     }
     
     @objc
     override static func requiresMainQueueSetup() -> Bool {
         return true
-    }
-    
-    @objc
-    func multiply(_ a: Float, b: Float, resolve:RCTPromiseResolveBlock, reject:RCTPromiseRejectBlock) -> Void {
-        resolve(a*b)
     }
     
     @objc
@@ -195,8 +163,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
                 if error == nil {
                     let result = try! self.callDictionariesAsDictionary(callDictionaries: callDictionaries)
                     resolve(result)
-                }
-                else {
+                } else {
                     let message: String
                     switch error! {
                     case BLError.apiCall(_, let statusCode):
@@ -227,8 +194,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
                 
                 if error == nil {
                     resolve(self.profileAsDictionary(profile: profile))
-                }
-                else {
+                } else {
                     let message: String
                     switch error! {
                     case BLError.apiCall(_, let statusCode):
@@ -259,8 +225,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
                 
                 if error == nil {
                     resolve(languages?.map { l in self.languageAsDictionary(language: l)})
-                }
-                else {
+                } else {
                     let message: String
                     switch error! {
                     case BLError.apiCall(_, let statusCode):
@@ -291,8 +256,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
                 
                 if error == nil {
                     resolve(languages?.map { l in self.languageAsDictionary(language: l)})
-                }
-                else {
+                } else {
                     let message: String
                     switch error! {
                     case BLError.apiCall(_, let statusCode):
@@ -314,17 +278,16 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
     }
     
     @objc
-    func getCallDetails(_ callId: Int, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    func getCallDetails(_ request: Int, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         do {
-            self.boostlingo!.getCallDetails(callId: callId) { [weak self] (callDetails, error) in
+            boostlingo!.getCallDetails(callId: request) { [weak self] (callDetails, error) in
                 guard let self = self else {
                     return
                 }
                 
                 if error == nil {
                     resolve(self.callDetailsAsDictionary(callDetails: callDetails))
-                }
-                else {
+                } else {
                     let message: String
                     switch error! {
                     case BLError.apiCall(_, let statusCode):
@@ -348,10 +311,31 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
     @objc
     func makeVoiceCall(_ request: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         do {
-            let callRequest = CallRequest(languageFromId: request["languageFromId"] as! Int, languageToId: request["languageToId"] as! Int, serviceTypeId: request["serviceTypeId"] as! Int, genderId: request["genderId"] as? Int, isVideo: false)
+            var data: [AdditionalField]? = nil
+            if let dataArray = request["data"] as? NSArray {
+                dataArray.map { $0 as! [String: String] }
+                    .map {
+                        AdditionalField(
+                            key: $0["key"]!,
+                            value: $0["value"]!
+                        )
+                    }
+            }
+
+            let callRequest = CallRequest(
+                languageFromId: request["languageFromId"] as! Int, 
+                languageToId: request["languageToId"] as! Int, 
+                serviceTypeId: request["serviceTypeId"] as! Int, 
+                genderId: request["genderId"] as? Int, 
+                isVideo: false,
+                data: data
+            )
 
             self.boostlingo!.chatDelegate = self
-            self.boostlingo!.makeVoiceCall(callRequest: callRequest, delegate: self) { [weak self] call, error in
+            self.boostlingo!.makeVoiceCall(
+                callRequest: callRequest,
+                delegate: self
+            ) { [weak self] call, error in
                 guard let self = self else {
                     return
                 }
@@ -376,10 +360,32 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
     @objc
     func makeVideoCall(_ request: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         do {
-            let callRequest = CallRequest(languageFromId: request["languageFromId"] as! Int, languageToId: request["languageToId"] as! Int, serviceTypeId: request["serviceTypeId"] as! Int, genderId: request["genderId"] as? Int, isVideo: true)
+            var data: [AdditionalField]? = nil
+            if let dataArray = request["data"] as? NSArray {
+                dataArray.map { $0 as! [String: String] }
+                    .map {
+                        AdditionalField(
+                            key: $0["key"]!,
+                            value: $0["value"]!
+                        )
+                    }
+            }
+
+            let callRequest = CallRequest(
+                languageFromId: request["languageFromId"] as! Int,
+                languageToId: request["languageToId"] as! Int, 
+                serviceTypeId: request["serviceTypeId"] as! Int, 
+                genderId: request["genderId"] as? Int, 
+                isVideo: true,
+                data: data
+            )
 
             self.boostlingo!.chatDelegate = self
-            self.boostlingo!.makeVideoCall(callRequest: callRequest, remoteVideoView: remoteVideoView!, localVideoView: localVideoView, delegate: self, videoDelegate: self) { [weak self] call, error in
+            self.boostlingo!.makeVideoCall(
+                callRequest: callRequest,
+                localVideoView: localVideoView,
+                delegate: self
+            ) { [weak self] call, error in
                 guard let self = self else {
                     return
                 }
@@ -410,10 +416,10 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
                 DispatchQueue.main.async {
                     if let error = error {
                         let message = error.localizedDescription
-                       reject("error", "Encountered an error: \(message)", error)
-                       return
+                        reject("error", "Encountered an error: \(message)", error)
+                        return
                     } else {
-                         resolve(nil)
+                        resolve(nil)
                     }
                 }
             }
@@ -456,32 +462,129 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
     
     @objc
     func muteCall(_ isMuted: Bool) {
-        guard let currentCall = boostlingo!.currentCall else {
-            return
-        }
-        currentCall.isMuted = isMuted
+      guard let call = boostlingo!.currentCall else {
+          return
+      }
+        
+      call.isMuted = isMuted
     }
     
     @objc
     func enableVideo(_ isVideoEnabled: Bool) {
-        guard let currentCall = boostlingo!.currentCall as? BLVideoCall else {
+        guard let call = boostlingo!.currentCall as? BLVideoCall else {
             return
         }
-        currentCall.isVideoEnabled = isVideoEnabled
+        call.isVideoEnabled = isVideoEnabled
     }
     
     @objc
     func flipCamera() {
-        guard let currentCall = boostlingo!.currentCall as? BLVideoCall else {
+        guard let call = boostlingo!.currentCall as? BLVideoCall else {
             return
         }
-        currentCall.flipCamera()
+        call.flipCamera()
     }
     
     @objc
+    func dialThirdParty(_ request: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+        do {
+            guard let call = boostlingo!.currentCall else {
+                resolve(nil)
+                return
+            }
+
+            call.dialThirdParty(phone: request) { [weak self] error in
+                guard let self = self else { return }
+                
+                DispatchQueue.main.async {
+                    if let error = error {
+                        let message = error.localizedDescription
+                        reject("error", "Encountered an error: \(message)", error)
+                        return
+                    } else {
+                        resolve(nil)
+                    }
+                }
+            }
+        } catch let error as NSError {
+            reject("error", error.domain, error)
+        } catch let error {
+            reject("error", "Error running SDK", error)
+            return
+        }
+    }
+
+    @objc
+    func hangUpThirdParty(_ request: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+        do {
+            guard let call = boostlingo!.currentCall else {
+                resolve(nil)
+                return
+            }
+
+            call.hangupThirdPartyParticipant(identity: request) { [weak self] error in
+                guard let self = self else { return }
+                
+                DispatchQueue.main.async {
+                    if let error = error {
+                        let message = error.localizedDescription
+                        reject("error", "Encountered an error: \(message)", error)
+                        return
+                    } else {
+                        resolve(nil)
+                    }
+                }
+            }
+        } catch let error as NSError {
+            reject("error", error.domain, error)
+        } catch let error {
+            reject("error", "Error running SDK", error)
+            return
+        }
+    }
+
+    @objc
+    func muteThirdParty(_ request: NSArray, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+        do {
+            guard let call = boostlingo!.currentCall else {
+                resolve(nil)
+                return
+            }
+
+            guard let identity = request[0] as? String else {
+                resolve(nil)
+                return 
+            }
+
+            guard let mute = request[1] as? Bool else {
+                resolve(nil)
+                return 
+            }
+
+            call.muteThirdPartyParticipant(identity: identity, mute: mute) { [weak self] error in
+                guard let self = self else { return }
+                
+                DispatchQueue.main.async {
+                    if let error = error {
+                        let message = error.localizedDescription
+                        reject("error", "Encountered an error: \(message)", error)
+                        return
+                    } else {
+                        resolve(nil)
+                    }
+                }
+            }
+        } catch let error as NSError {
+            reject("error", error.domain, error)
+        } catch let error {
+            reject("error", "Error running SDK", error)
+            return
+        }
+    }
+
+    @objc
     func dispose() {
         localVideoView = nil
-        remoteVideoView = nil
         boostlingo?.chatDelegate = nil
         boostlingo = nil
     }
@@ -503,20 +606,82 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
         guard let call = call else {
             return nil
         }
+
         var dictionary = [String: Any]()
         dictionary["callId"] = call.callId
+        dictionary["currentUserId"] = call.currentUserId
         dictionary["isVideo"] = call.isVideo
         dictionary["isInProgress"] = call.isInProgress
-        dictionary["interlocutorInfo"] = interlocutorInfoAsDictionary(interlocutorInfo: call.interlocutorInfo)
+        dictionary["interlocutorInfo"] = participantAsDictionary(participant: call.interlocutorInfo)
         dictionary["isMuted"] = call.isMuted
         dictionary["accessToken"] = call.accessToken
         dictionary["identity"] = call.identity
+        dictionary["participants"] = participantsAsDictionary(participants: call.participants)
+        dictionary["canAddThirdParty"] = call.canAddThirdParty
+
         if let videoCall = call as? BLVideoCall {
+            dictionary["isVideoEnabled"] = videoCall.isVideoEnabled
             dictionary["roomId"] = videoCall.roomId
         } else {
+            dictionary["isVideoEnabled"] = nil
             dictionary["roomId"] = nil
         }
+
         return dictionary
+    }
+
+    private func participantAsDictionary(participant: BLParticipant?) -> [String: Any]? {
+        guard let participant = participant else {
+            return nil
+        }
+
+        var dictionary = [String: Any]()
+        dictionary["userAccountId"] = participant.userAccountId
+        dictionary["thirdPartyParticipantId"] = participant.thirdPartyParticipantId
+        dictionary["identity"] = participant.identity
+        dictionary["participantType"] = participant.participantType.rawValue
+        dictionary["imageInfo"] = imageInfoAsDictionary(imageInfo: participant.imageInfo)
+        dictionary["requiredName"] = participant.requiredName
+        dictionary["rating"] = participant.rating
+        dictionary["companyName"] = participant.companyName
+        dictionary["state"] = participant.state.rawValue
+        dictionary["isAudioEnabled"] = participant.isAudioEnabled
+        dictionary["isVideoEnabled"] = participant.isVideoEnabled
+        dictionary["muteActionIsEnabled"] = participant.muteActionIsEnabled
+        dictionary["removeActionIsEnabled"] = participant.removeActionIsEnabled
+
+        return dictionary
+    }
+
+    private func imageInfoAsDictionary(imageInfo: ImageInfo?) -> [String: Any]? {
+        guard let imageInfo = imageInfo else {
+            return nil
+        }
+
+        var dictionary = [String: Any]()
+        dictionary["imageKey"] = imageInfo.imageKey
+        dictionary["sizes"] = imageInfo.sizes
+        dictionary["baseUrl"] = imageInfo.baseUrl
+        dictionary["fileExtension"] = imageInfo.fileExtension
+
+        return dictionary
+    }
+
+    private func participantsAsDictionary(participants: [BLParticipant]) -> [[String: Any]?] {
+        return participants.map { participant in
+            participantAsDictionary(participant: participant)
+        }
+
+        // if participants.isEmpty {
+        //     return nil
+        // }
+
+        // var list = [[String: Any]]()
+        // for participant in participants {
+        //     list.append(participantAsDictionary(participant: participant))
+        // }
+
+        // return list
     }
     
     private func languageAsDictionary(language: Language?) -> [String: Any]? {
@@ -529,31 +694,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
         guard let dictionary = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any] else {
             return nil
         }
-        return dictionary
-    }
-    
-    private func interlocutorInfoAsDictionary(interlocutorInfo: InterpreterInfo?) -> [String: Any]? {
-        guard let interlocutorInfo = interlocutorInfo else {
-            return nil
-        }
-        var dictionary = [String: Any]()
-        dictionary["userAccountId"] = interlocutorInfo.userAccountId
-        dictionary["firstName"] = interlocutorInfo.firstName
-        dictionary["lastName"] = interlocutorInfo.lastName
-        dictionary["requiredName"] = interlocutorInfo.requiredName
-        dictionary["companyName"] = interlocutorInfo.companyName
-        dictionary["rating"] = interlocutorInfo.rating
-        dictionary["imageInfo"] = imageInfoAsDictionary(imageInfo: interlocutorInfo.imageInfo)
-        return dictionary
-    }
-    
-    private func imageInfoAsDictionary(imageInfo: ImageInfo?) -> [String: Any]? {
-        guard let imageInfo = imageInfo else {
-            return nil
-        }
-        var dictionary = [String: Any]()
-        dictionary["imageKey"] = imageInfo.imageKey
-        dictionary["sizes"] = imageInfo.sizes
+
         return dictionary
     }
     
@@ -561,6 +702,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
         guard let profile = profile else {
             return nil
         }
+
         var dictionary = [String: Any]()
         dictionary["accountName"] = profile.accountName
         dictionary["userAccountId"] = profile.userAccountId
@@ -570,6 +712,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
         dictionary["lastName"] = profile.lastName
         dictionary["requiredName"] = profile.requiredName
         dictionary["imageInfo"] = imageInfoAsDictionary(imageInfo: profile.imageInfo)
+
         return dictionary
     }
     
@@ -577,6 +720,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
         guard let callDetails = callDetails else {
             return nil
         }
+
         var dictionary = [String: Any]()
         dictionary["callId"] = callDetails.callId
         dictionary["accountUniqueId"] = callDetails.accountUniqueId
@@ -584,6 +728,7 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
         dictionary["timeRequested"] = callDetails.timeRequested.timeIntervalSince1970
         dictionary["timeAnswered"] = callDetails.timeAnswered?.timeIntervalSince1970
         dictionary["timeConnected"] = callDetails.timeConnected?.timeIntervalSince1970
+
         return dictionary
     }
     
@@ -591,10 +736,12 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
         guard let chatMessage = chatMessage else {
             return nil
         }
+
         var dictionary = [String: Any]()
         dictionary["user"] = chatUserAsDictionary(chatUser: chatMessage.user)
         dictionary["text"] = chatMessage.text
         dictionary["sentTime"] = chatMessage.sentTime.timeIntervalSince1970
+
         return dictionary
     }
     
@@ -602,14 +749,16 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
         guard let chatUser = chatUser else {
             return nil
         }
+
         var dictionary = [String: Any]()
         dictionary["id"] = chatUser.id
         dictionary["imageInfo"] = imageInfoAsDictionary(imageInfo: chatUser.imageInfo)
+
         return dictionary
     }
     
     // MARK: - BLCallDelegate
-    func callDidConnect(_ call: BLCall) {
+    func callDidConnect(_ call: BLCall, participants: [BLParticipant]) {
         if (hasListeners) {
             DispatchQueue.main.async {
                 self.sendEvent(withName: "callDidConnect", body: self.callAsDictionary(call: call))
@@ -629,6 +778,30 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
         if (hasListeners) {
             DispatchQueue.main.async {
                 self.sendEvent(withName: "callDidFailToConnect", body: error != nil ? error!.localizedDescription : nil)
+            }
+        }
+    }
+
+    func callParticipantConnected(_ participant: BLParticipant, call: BLCall) {
+        if (hasListeners) {
+            DispatchQueue.main.async {
+                self.sendEvent(withName: "callParticipantConnected", body: self.participantAsDictionary(participant: participant))
+            }
+        }
+    }
+    
+    func callParticipantUpdated(_ participant: BLParticipant, call: BLCall) {
+        if (hasListeners) {
+            DispatchQueue.main.async {
+                self.sendEvent(withName: "callParticipantUpdated", body: self.participantAsDictionary(participant: participant))
+            }
+        }
+    }
+    
+    func callParticipantDisconnected(_ participant: BLParticipant, call: BLCall) {
+        if (hasListeners) {
+            DispatchQueue.main.async {
+                self.sendEvent(withName: "callParticipantDisconnected", body: self.participantAsDictionary(participant: participant))
             }
         }
     }
@@ -654,71 +827,6 @@ class BoostlingoSdk: RCTEventEmitter, BLCallDelegate, BLChatDelegate, BLVideoDel
         if (hasListeners) {
             DispatchQueue.main.async {
                 self.sendEvent(withName: "chatMessageRecieved", body: self.chatMessageAsDictionary(chatMessage: message))
-            }
-        }
-    }
-    
-    // MARK: - BLVideoDelegate
-    func remoteAudioEnabled() {
-        if (hasListeners) {
-            DispatchQueue.main.async {
-                self.sendEvent(withName: "remoteAudioEnabled", body: nil)
-            }
-        }
-    }
-    
-    func remoteAudioDisabled() {
-        if (hasListeners) {
-            DispatchQueue.main.async {
-                self.sendEvent(withName: "remoteAudioDisabled", body: nil)
-            }
-        }
-    }
-    
-    func remoteVideoEnabled() {
-        if (hasListeners) {
-            DispatchQueue.main.async {
-                self.sendEvent(withName: "remoteVideoEnabled", body: nil)
-            }
-        }
-    }
-    
-    func remoteVideoDisabled() {
-        if (hasListeners) {
-            DispatchQueue.main.async {
-                self.sendEvent(withName: "remoteVideoDisabled", body: nil)
-            }
-        }
-    }
-    
-    func remoteAudioPublished() {
-        if (hasListeners) {
-            DispatchQueue.main.async {
-                self.sendEvent(withName: "remoteAudioPublished", body: nil)
-            }
-        }
-    }
-    
-    func remoteAudioUnpublished() {
-        if (hasListeners) {
-            DispatchQueue.main.async {
-                self.sendEvent(withName: "remoteAudioUnpublished", body: nil)
-            }
-        }
-    }
-    
-    func remoteVideoPublished() {
-        if (hasListeners) {
-            DispatchQueue.main.async {
-                self.sendEvent(withName: "remoteVideoPublished", body: nil)
-            }
-        }
-    }
-    
-    func remoteVideoUnpublished() {
-        if (hasListeners) {
-            DispatchQueue.main.async {
-                self.sendEvent(withName: "remoteVideoUnpublished", body: nil)
             }
         }
     }

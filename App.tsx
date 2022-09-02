@@ -83,16 +83,28 @@ const App = () => {
   const eventEmitter = new NativeEventEmitter(BoostlingoSdk);
   // Don't forget to unsubscribe, typically in componentWillUnmount
   eventEmitter.addListener('callDidConnect', (event) => {
-    setResult('callDidConnect ' + JSON.stringify(event))
+    setResult('callDidConnect ' + JSON.stringify(event));
+    console.warn('callDidConnect ' + JSON.stringify(event));
+
+    if (event.isVideo && event.participants) {
+      var participant = event.participants[0];
+      if (participant != null) {
+        UIManager.dispatchViewManagerCommand(
+          findNodeHandle(remoteVideoView),
+          UIManager.getViewManagerConfig('BLVideoView').Commands.attachAsRemoteRenderer,
+          [participant.identity]);
+      }
+    }
   });
   eventEmitter.addListener('callDidDisconnect', (event) => {
-    setResult('callDidDisconnect ' + JSON.stringify(event))
+    setResult('callDidDisconnect ' + JSON.stringify(event));
   });
   eventEmitter.addListener('callDidFailToConnect', (event) => {
-    setResult('callDidFailToConnect ' + JSON.stringify(event))
+    setResult('callDidFailToConnect ' + JSON.stringify(event));
   });
   eventEmitter.addListener('callParticipantConnected', (event) => {
-    setResult('callParticipantConnected ' + JSON.stringify(event))
+    setResult('callParticipantConnected ' + JSON.stringify(event));
+    console.warn('callParticipantConnected ' + JSON.stringify(event));
 
     BoostlingoSdk.getCurrentCall()
       .then((result: any) => {
@@ -122,10 +134,14 @@ const App = () => {
   eventEmitter.addListener('chatMessageRecieved', (event) => {
     setResult('chatMessageRecieved ' + JSON.stringify(event))
   });
+  eventEmitter.addListener('error', (event) => {
+    setResult('error ' + JSON.stringify(event))
+    console.warn('error ' + JSON.stringify(event));
+  });
 
   React.useEffect(() => {
     BoostlingoSdk.initialize({
-      "authToken": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxMSIsInJvbGUiOiJDb3Jwb3JhdGVDbGllbnRSb290QWRtaW4iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3VzZXJkYXRhIjoie1wiQ3VycmVudENvbXBhbnlJZFwiOjksXCJNYXN0ZXJDb21wYW55SWRcIjo4fSIsImNyZWF0ZWQiOiIwOC8yNC8yMDIyIDEzOjI2OjI4IiwiY3VsdHVyZUlkIjoiMSIsIm5iZiI6MTY2MTM0NzU4OCwiZXhwIjoxNjYzOTM5NTg4LCJpYXQiOjE2NjEzNDc1ODgsImlzcyI6IkJvb3N0bGluZ28iLCJhdWQiOiJVc2VycyJ9.F1bs1jrV5w0jTCJpgUAWEwqzJfUDXZdCGEJwzlFB05khx6eGhIovv99Gdi5awPMwV5KmrzaBNhnMZfoGGWMzHAu7c8k-BoCByEhyTQgtBGDFZDBGDtTekaqB0J_y2vhV6z7daAOD8Hk60NT5yQ3K_Jihh0IEn3iLfl05DmMGl0QPyCFPwfXamQD2o2kB0lp51TK2c6o7VqjEwEYIigSDSQnm7_f5ZFmCqbf_5MYP7VA6Yxzb1BvjZ6_FyN8J3bQi_6P3FW1z6R99BEBfyfd9jceR0doEq8UlywX_9Qg6s_dhbNjxK56wIrgPFYTTo4iHljCBt50_Djoev_lE9T26RA",
+      "authToken": "",
       "region" : "qa"
     })
     .then(() => {
@@ -485,6 +501,22 @@ const App = () => {
               .catch((error: any) => {
                 setResult(error);
               });
+          }}
+        />
+        <Button 
+          title="dispose"
+          onPress={() => {
+            BoostlingoSdk.dispose();
+            eventEmitter.removeAllListeners('callDidConnect');
+            eventEmitter.removeAllListeners('callDidDisconnect');
+            eventEmitter.removeAllListeners('callDidFailToConnect');
+            eventEmitter.removeAllListeners('callParticipantConnected');
+            eventEmitter.removeAllListeners('callParticipantUpdated');
+            eventEmitter.removeAllListeners('callParticipantDisconnected');
+            eventEmitter.removeAllListeners('chatConnected');
+            eventEmitter.removeAllListeners('chatDisconnected');
+            eventEmitter.removeAllListeners('chatMessageRecieved');
+            eventEmitter.removeAllListeners('error');
           }}
         />
       </ScrollView>
